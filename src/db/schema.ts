@@ -198,3 +198,25 @@ export const orderItem = sqliteTable("order_item", {
   quantity: integer("quantity").notNull(),
   priceAtPurchase: integer("price_at_purchase").notNull(),
 });
+
+export const sliderItem = sqliteTable("slider_item", {
+  id: text("id").primaryKey(),
+
+  productId: text("product_id")
+    .notNull()
+    .references(() => product.id, {
+      onDelete: "cascade",
+    }),
+
+  text: text("text"),
+
+  image: text("image"),
+
+  order: integer("order").notNull().default(0),
+
+  active: integer("active", {
+    mode: "boolean",
+  })
+    .notNull()
+    .default(true),
+});
