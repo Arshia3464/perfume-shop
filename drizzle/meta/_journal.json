@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1781093029225,
+      "tag": "0000_last_blacklash",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1781117695840,
+      "tag": "0001_silky_roland_deschain",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1781124799435,
+      "tag": "0002_complete_photon",
+      "breakpoints": true
+    }
+  ]
+}
