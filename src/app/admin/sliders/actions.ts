@@ -9,14 +9,13 @@ import { nanoid } from "nanoid";
 export async function createSlider(formData: FormData) {
   const productId = String(formData.get("productId"));
   const text = formData.get("text");
-  const image = formData.get("image");
   const order = Number(formData.get("order") ?? 0);
 
   await db.insert(sliderItem).values({
     id: nanoid(),
     productId,
     text: typeof text === "string" ? text : null,
-    image: typeof image === "string" ? image : null,
+    image: String(formData.get("image")),
     order,
   });
 }

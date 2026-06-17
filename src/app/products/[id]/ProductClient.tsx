@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { addToCart } from "../actions";
+import { addToCart, wishListToggle } from "../actions";
 
 type Product = {
   id: string;
@@ -45,12 +45,24 @@ export default function ProductClient({ item }: { item: Product }) {
     }
   };
 
+  const toggleWishList = async () => {
+    try {
+      await wishListToggle(item.id);
+
+      alert("تغییر با موفقیت انجام شد");
+    } catch (err) {
+      console.error(err);
+
+      alert("ابتدا وارد حساب شوید");
+    }
+  };
+
   return (
     <div className="min-h-screen py-10 px-6">
       <div className="max-w-5xl mx-auto">
         <div className="grid md:grid-cols-2 gap-10 bg-white border rounded-3xl shadow-sm overflow-hidden">
           {/* IMAGE */}
-          <div className="bg-gray-100 h-[420px] md:h-full">
+          <div className="bg-gray-100 h-105 md:h-full">
             {item.image ? (
               <img
                 src={item.image ?? undefined}
@@ -118,7 +130,10 @@ export default function ProductClient({ item }: { item: Product }) {
                   {loading ? "در حال افزودن..." : "افزودن به سبد خرید"}
                 </button>
 
-                <button className="px-4 py-3 border rounded-xl hover:bg-gray-50 transition">
+                <button
+                  onClick={toggleWishList}
+                  className="px-4 py-3 border rounded-xl hover:bg-gray-50 transition"
+                >
                   ♥
                 </button>
               </div>

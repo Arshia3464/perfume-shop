@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 
 import { db } from "@/db";
 
-import { order, cartItem, product } from "@/db/schema";
+import { order, cartItem, product, wishlistItem } from "@/db/schema";
 
 import { eq } from "drizzle-orm";
 
@@ -26,22 +26,27 @@ export default async function DashboardPage() {
   const cartItems = await db
     .select({
       id: cartItem.id,
-
       quantity: cartItem.quantity,
-
       productId: product.id,
-
       name: product.name,
-
       price: product.price,
-
       image: product.image,
-
       brand: product.brand,
     })
     .from(cartItem)
     .leftJoin(product, eq(cartItem.productId, product.id))
     .where(eq(cartItem.userId, session.user.id));
+
+  const wishListItems = await db
+    .select({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+    })
+    .from(wishlistItem)
+    .innerJoin(product, eq(wishlistItem.productId, product.id))
+    .where(eq(wishlistItem.userId, session.user.id));
 
   return (
     <div className="min-h-screen bg-zinc-50 p-6 pt-28">
@@ -162,6 +167,33 @@ export default async function DashboardPage() {
                   <p className="font-semibold">
                     {o.total.toLocaleString()} تومان
                   </p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* WISHLIST */}
+        <div className="bg-white rounded-3xl border shadow-sm overflow-hidden">
+          <div className="p-5 border-b">
+            <h2 className="font-semibold">لیست علاقه‌مندی‌ها </h2>
+          </div>
+
+          <div className="p-5 space-y-3">
+            {wishListItems.length === 0 ? (
+              <p className="text-sm text-gray-500">
+                هنوز محصولی به لیست علاقه‌مندی‌ها اضافه نکرده‌اید
+              </p>
+            ) : (
+              wishListItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between border rounded-2xl p-4"
+                >
+                  <div>
+                    <p className="font-medium">ادکلن {item.name}</p>
+                    <p className="text-xs text-gray-400 mt-1">{item.price}</p>
+                  </div>
                 </div>
               ))
             )}
