@@ -2,7 +2,6 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
 import { db } from "@/db";
-
 import { order, cartItem, product, wishlistItem } from "@/db/schema";
 
 import { eq } from "drizzle-orm";
@@ -13,16 +12,18 @@ export default async function DashboardPage() {
   });
 
   if (!session) {
-    return <div className="p-6">لطفا وارد شوید</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)] text-[var(--foreground)]">
+        <p className="text-sm text-muted-foreground">لطفا وارد شوید</p>
+      </div>
+    );
   }
 
-  // ORDERS
   const orders = await db
     .select()
     .from(order)
     .where(eq(order.userId, session.user.id));
 
-  // CART ITEMS + PRODUCT INFO
   const cartItems = await db
     .select({
       id: cartItem.id,
@@ -49,156 +50,186 @@ export default async function DashboardPage() {
     .where(eq(wishlistItem.userId, session.user.id));
 
   return (
-    <div className="min-h-screen bg-zinc-50 p-6 pt-28">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* HEADER */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border">
-          <h1 className="text-xl font-semibold">
-            سلام، {session.user.name} 👋
-          </h1>
+    <div
+      dir="rtl"
+      className="relative min-h-screen bg-[var(--background)] text-[var(--foreground)] overflow-hidden"
+    >
+      {/* ambient background */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-32 -left-32 h-[400px] w-[400px] rounded-full bg-[var(--accent)]/10 blur-[120px]" />
+        <div className="absolute bottom-0 right-0 h-[500px] w-[500px] rounded-full bg-black/5 blur-[140px]" />
+      </div>
 
-          <p className="text-sm text-gray-500 mt-1">داشبورد حساب کاربری شما</p>
-        </div>
+      <div className="relative container mx-auto px-6 py-24 space-y-20">
+        {/* ───────── HERO CARD ───────── */}
+        <section className="relative overflow-hidden rounded-[2rem] border border-black/10 bg-[var(--secondary)]/40 backdrop-blur-xl p-10">
+          {/* ghost typography */}
+          <span className="absolute inset-0 flex items-center justify-center text-[9rem] font-black opacity-[0.03] select-none">
+            VAULT
+          </span>
 
-        {/* STATS */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="bg-white rounded-3xl p-5 border shadow-sm">
-            <p className="text-sm text-gray-500">سفارش‌ها</p>
+          <div className="relative space-y-2">
+            <p className="text-xs tracking-[0.35em] text-muted-foreground">
+              FRAGRANCE VAULT
+            </p>
 
-            <p className="text-3xl font-bold mt-2">{orders.length}</p>
-          </div>
+            <h1 className="text-3xl font-black lg:text-5xl">
+              خوش آمدی، {session.user.name}
+            </h1>
 
-          <div className="bg-white rounded-3xl p-5 border shadow-sm">
-            <p className="text-sm text-gray-500">سبد خرید</p>
-
-            <p className="text-3xl font-bold mt-2">{cartItems.length}</p>
-          </div>
-
-          <div className="bg-white rounded-3xl p-5 border shadow-sm">
-            <p className="text-sm text-gray-500">نوع حساب</p>
-
-            <p className="text-sm mt-2">
-              {session.user.role == "admin" ? "ادمین" : "کاربر"}
+            <p className="text-sm text-muted-foreground">
+              اینجا آرشیو شخصی رایحه‌های توست — انتخاب‌هایی که هویتت را می‌سازند
             </p>
           </div>
-        </div>
+        </section>
 
-        {/* CART */}
-        <div className="bg-white rounded-3xl border shadow-sm overflow-hidden">
-          <div className="p-5 border-b">
-            <h2 className="font-semibold">سبد خرید</h2>
-          </div>
+        {/* ───────── STATS STRIP (EDITORIAL CARDS) ───────── */}
+        <section className="grid gap-6 md:grid-cols-3">
+          {[
+            { label: "Orders Archive", value: orders.length },
+            { label: "Active Cart Items", value: cartItems.length },
+            {
+              label: "Account Tier",
+              value: session.user.role === "admin" ? "Curator" : "Member",
+            },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="relative overflow-hidden rounded-2xl border border-black/10 bg-[var(--secondary)]/30 p-6 backdrop-blur-xl"
+            >
+              <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-[var(--accent)]/10 blur-2xl" />
 
-          <div className="p-5 space-y-4">
+              <p className="text-xs tracking-[0.3em] text-muted-foreground">
+                {s.label}
+              </p>
+
+              <p className="mt-4 text-4xl font-black">{s.value}</p>
+            </div>
+          ))}
+        </section>
+
+        {/* ───────── CART (VAULT ITEMS) ───────── */}
+        <section className="space-y-6">
+          <h2 className="text-xs tracking-[0.35em] text-muted-foreground">
+            VAULT / CART
+          </h2>
+
+          <div className="space-y-4">
             {cartItems.length === 0 ? (
-              <p className="text-sm text-gray-500">
-                هنوز محصولی به سبد خرید اضافه نکرده‌اید
+              <p className="text-sm text-muted-foreground">
+                هنوز رایحه‌ای در این بخش نیست
               </p>
             ) : (
               cartItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between border rounded-2xl p-4"
+                  className="group relative flex items-center justify-between overflow-hidden rounded-2xl border border-black/10 bg-[var(--secondary)]/30 p-5 backdrop-blur-xl transition hover:scale-[1.01]"
                 >
-                  {/* LEFT */}
-                  <div className="flex items-center gap-4">
+                  {/* glow hover */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-gradient-to-r from-[var(--accent)]/10 to-transparent" />
+
+                  <div className="relative flex items-center gap-5">
                     {/* IMAGE */}
-                    <div className="w-20 h-20 rounded-2xl overflow-hidden bg-zinc-100 shrink-0">
+                    <div className="h-16 w-16 rounded-xl bg-white/30 overflow-hidden flex items-center justify-center">
                       {item.image ? (
                         <img
-                          src={item.image ?? undefined}
-                          alt={item.name ?? undefined}
-                          className="w-full h-full object-cover"
+                          src={item.image}
+                          alt={item.name ?? ""}
+                          className="h-full w-full object-contain p-2"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
-                          بدون تصویر
-                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          N/A
+                        </span>
                       )}
                     </div>
 
                     {/* INFO */}
-                    <div className="space-y-1 text-right">
-                      <h3 className="font-medium">{item.name}</h3>
-
-                      <p className="text-xs text-gray-500">{item.brand}</p>
-
-                      <p className="text-sm text-gray-400">
-                        تعداد: {item.quantity}
+                    <div>
+                      <p className="font-medium">{item.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {item.brand}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        × {item.quantity}
                       </p>
                     </div>
                   </div>
 
                   {/* PRICE */}
-                  <div className="text-left">
-                    <p className="font-semibold">
+                  <div className="relative text-left">
+                    <p className="text-lg font-bold">
                       {(item.price ?? 0 * item.quantity).toLocaleString()}
                     </p>
-
-                    <p className="text-xs text-gray-400 mt-1">تومان</p>
+                    <p className="text-xs text-muted-foreground">TOMAN</p>
                   </div>
                 </div>
               ))
             )}
           </div>
-        </div>
+        </section>
 
-        {/* ORDERS */}
-        <div className="bg-white rounded-3xl border shadow-sm overflow-hidden">
-          <div className="p-5 border-b">
-            <h2 className="font-semibold">سفارش‌های اخیر</h2>
-          </div>
+        {/* ───────── ORDERS (ARCHIVE STYLE) ───────── */}
+        <section className="space-y-6">
+          <h2 className="text-xs tracking-[0.35em] text-muted-foreground">
+            ORDER ARCHIVE
+          </h2>
 
-          <div className="p-5 space-y-3">
+          <div className="space-y-3">
             {orders.length === 0 ? (
-              <p className="text-sm text-gray-500">هنوز سفارشی ثبت نکرده‌اید</p>
+              <p className="text-sm text-muted-foreground">
+                هنوز سفارشی ثبت نشده
+              </p>
             ) : (
               orders.map((o) => (
                 <div
                   key={o.id}
-                  className="flex items-center justify-between border rounded-2xl p-4"
+                  className="flex items-center justify-between rounded-2xl border border-black/10 bg-[var(--secondary)]/30 p-5 backdrop-blur-xl"
                 >
                   <div>
-                    <p className="font-medium">سفارش #{o.id.slice(0, 6)}</p>
-
-                    <p className="text-xs text-gray-400 mt-1">{o.status}</p>
+                    <p className="font-medium">
+                      ORDER #{o.id.slice(0, 6).toUpperCase()}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {o.status}
+                    </p>
                   </div>
 
-                  <p className="font-semibold">
-                    {o.total.toLocaleString()} تومان
+                  <p className="text-lg font-bold">
+                    {o.total.toLocaleString()} ₮
                   </p>
                 </div>
               ))
             )}
           </div>
-        </div>
+        </section>
 
-        {/* WISHLIST */}
-        <div className="bg-white rounded-3xl border shadow-sm overflow-hidden">
-          <div className="p-5 border-b">
-            <h2 className="font-semibold">لیست علاقه‌مندی‌ها </h2>
-          </div>
+        {/* ───────── WISHLIST (SAVED FRAGRANCES) ───────── */}
+        <section className="space-y-6">
+          <h2 className="text-xs tracking-[0.35em] text-muted-foreground">
+            SAVED FRAGRANCES
+          </h2>
 
-          <div className="p-5 space-y-3">
+          <div className="grid gap-4 md:grid-cols-2">
             {wishListItems.length === 0 ? (
-              <p className="text-sm text-gray-500">
-                هنوز محصولی به لیست علاقه‌مندی‌ها اضافه نکرده‌اید
+              <p className="text-sm text-muted-foreground">
+                هیچ رایحه‌ای ذخیره نشده
               </p>
             ) : (
               wishListItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between border rounded-2xl p-4"
+                  className="rounded-2xl border border-black/10 bg-[var(--secondary)]/30 p-5 backdrop-blur-xl hover:scale-[1.02] transition"
                 >
-                  <div>
-                    <p className="font-medium">ادکلن {item.name}</p>
-                    <p className="text-xs text-gray-400 mt-1">{item.price}</p>
-                  </div>
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {item.price?.toLocaleString()} ₮
+                  </p>
                 </div>
               ))
             )}
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );

@@ -106,7 +106,7 @@ export default function SlidersClient({
   }
 
   return (
-    <div className="min-h-screen p-6 bg-zinc-50">
+    <div className="min-h-screen w-full p-6 bg-zinc-50">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* HEADER */}
         <div className="flex justify-between items-center">

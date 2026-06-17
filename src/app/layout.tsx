@@ -5,6 +5,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "قروشگاه عطر ",
@@ -22,9 +23,10 @@ export default async function RootLayout({
   });
   return (
     <html lang="fa" dir="rtl">
-      <body className="font-sans bg-[#c3c9dc] pt-20 text-white antialiased">
+      <body className="font-sans pt-20 antialiased">
         <Navbar user={session?.user ?? null} />
         {children}
+        <Footer />
       </body>
     </html>
   );
