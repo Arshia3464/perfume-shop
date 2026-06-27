@@ -14,17 +14,14 @@ export async function createProduct(formData: FormData) {
     brand: String(formData.get("brand")),
     gender: String(formData.get("gender")),
     image: String(formData.get("image")),
-    createdAt: new Date().toISOString(),
+    // createdAt: new Date().toISOString(),
   });
 }
 
 export async function updateProduct(formData: FormData) {
   const id = String(formData.get("id"));
-
   await db
-
     .update(product)
-
     .set({
       name: String(formData.get("name")),
       description: String(formData.get("description")),
@@ -35,8 +32,7 @@ export async function updateProduct(formData: FormData) {
       season: String(formData.get("season")),
       volumeMl: Number(formData.get("volumeMl")),
       image: String(formData.get("image")),
-      updatedAt: new Date().toISOString(),
+      // updatedAt: new Date().toISOString(),
     })
-
     .where(eq(product.id, id));
 }

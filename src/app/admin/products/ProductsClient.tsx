@@ -12,6 +12,11 @@ type Product = {
   brand: string;
   gender: string;
   image: string | null;
+  description?: string | null;
+  season?: string | null;
+  volumeMl?: number | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
 };
 
 export default function ProductsClient({
@@ -20,11 +25,8 @@ export default function ProductsClient({
   initialProducts: Product[];
 }) {
   const [products] = useState(initialProducts);
-
   const [search, setSearch] = useState("");
-
   const [addOpen, setAddOpen] = useState(false);
-
   const [selected, setSelected] = useState<Product | null>(null);
 
   const filtered = useMemo(() => {
@@ -34,12 +36,11 @@ export default function ProductsClient({
   }, [products, search]);
 
   return (
-    <div className="min-h-screen w-full p-6">
+    <div className="min-h-screen w-full p-6" dir="rtl">
       {/* HEADER */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold">محصولات</h1>
-
           <p className="text-sm text-gray-500 mt-1">مدیریت محصولات فروشگاه</p>
         </div>
 
@@ -104,7 +105,6 @@ export default function ProductsClient({
                 <span className="font-semibold text-sm">
                   {p.price.toLocaleString()} تومان
                 </span>
-
                 <span className="text-xs text-gray-400">{p.stock} عدد</span>
               </div>
             </div>
@@ -145,7 +145,6 @@ function Modal({
         >
           ✕
         </button>
-
         {children}
       </div>
     </div>
@@ -158,15 +157,12 @@ function AddProductForm() {
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-
     if (!file) return;
 
     const reader = new FileReader();
-
     reader.onload = () => {
       setImage(reader.result as string);
     };
-
     reader.readAsDataURL(file);
   };
 
@@ -175,9 +171,7 @@ function AddProductForm() {
       action={async (formData) => {
         formData.append("gender", gender);
         formData.append("image", image);
-
         await createProduct(formData);
-
         window.location.reload();
       }}
       className="space-y-4"
@@ -196,7 +190,6 @@ function AddProductForm() {
           placeholder="قیمت"
           className="border rounded-xl px-3 py-2"
         />
-
         <input
           name="stock"
           placeholder="موجودی"
@@ -229,7 +222,6 @@ function AddProductForm() {
       {/* IMAGE */}
       <div className="space-y-2">
         <input type="file" accept="image/*" onChange={handleImage} />
-
         {image && (
           <img
             src={image}
