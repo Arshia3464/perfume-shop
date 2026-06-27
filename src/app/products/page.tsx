@@ -2,111 +2,150 @@ import { db } from "@/db";
 import { product } from "@/db/schema";
 import Link from "next/link";
 
+// Premium React Icons for luxury UI branding
+import {
+  IoManOutline,
+  IoWomanOutline,
+  IoMaleFemaleOutline,
+  IoArrowBackOutline,
+  IoSparklesOutline,
+} from "react-icons/io5";
+
 export default async function ProductsPage() {
   const products = await db.select().from(product);
 
   return (
     <div
       dir="rtl"
-      className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
+      className="min-h-screen bg-background text-foreground antialiased selection:bg-accent selection:text-primary"
     >
-      {/* ───── HEADER ───── */}
-      <div className="relative overflow-hidden border-b border-border/40">
-        {/* background ghost text */}
+      {/* ───── LUXURY EDITORIAL HEADER ───── */}
+      <div className="relative overflow-hidden border-b border-secondary/60 bg-secondary/10">
+        {/* Background ambient ghost text */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span className="select-none text-[10rem] font-black opacity-[0.03]">
+          <span className="select-none text-[8rem] md:text-[14rem] font-black opacity-[0.02] tracking-widest">
             عطر
           </span>
         </div>
 
-        <div className="container mx-auto px-6 py-20 text-center">
-          <p className="text-xs tracking-[0.35em] text-muted-foreground">
-            مجموعه محصولات
-          </p>
+        <div className="container mx-auto px-4 py-16 md:py-24 text-center relative z-10 max-w-5xl space-y-4">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/5 px-3 py-1 text-[10px] font-bold text-accent">
+            <IoSparklesOutline className="w-3 h-3" />
+            <span>گالری خانه عطر عتیق</span>
+          </div>
 
-          <h1 className="mt-4 text-4xl font-black leading-[1.2] lg:text-6xl">
+          <h1 className="text-3xl font-black leading-tight sm:text-5xl lg:text-6xl text-primary">
             رایحه‌هایی برای
             <br />
-            <span className="text-[var(--accent)]">سلیقه‌های خاص</span>
+            <span className="text-accent">سلیقه‌های خاص و متمایز</span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-xl text-sm leading-7 text-muted-foreground">
-            مجموعه‌ای از عطرهای اصل، دکانت‌های لوکس و رایحه‌های نایاب از برندهای
-            جهانی.
+          <p className="mx-auto max-w-xl text-xs md:text-sm leading-6 md:leading-7 text-neutral-500 font-medium">
+            مجموعه‌ای گران‌بها از عطرهای اورجینال، دکانت‌های لوکس کلکسیونی و
+            شاهکارهای نایاب نیش از برترین خانه‌های عطر جهان.
           </p>
         </div>
       </div>
 
-      {/* ───── GRID ───── */}
-      <div className="container mx-auto px-6 py-14">
+      {/* ───── PREMIUM PRODUCT GRID ───── */}
+      <div className="container mx-auto px-4 py-12 max-w-7xl">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {products.map((p, index) => (
-            <Link
-              key={p.id}
-              href={`/products/${p.id}`}
-              className="group relative overflow-hidden rounded-3xl border border-border/40 bg-[var(--secondary)]/30 transition-all duration-500 hover:-translate-y-1 hover:border-[var(--accent)]/40"
-            >
-              {/* IMAGE SECTION */}
-              <div className="relative h-[260px] overflow-hidden bg-black/5">
-                {p.image ? (
-                  <img
-                    src={p.image}
-                    alt={p.name}
-                    className="h-full w-full object-contain p-6 transition duration-700 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                    بدون تصویر
+          {products.map((p, index) => {
+            // Elegant Persian translation + specific line icon configuration for target demographic
+            const demographic =
+              p.gender.toLowerCase() === "men"
+                ? {
+                    label: "مردانه",
+                    icon: <IoManOutline className="w-3.5 h-3.5" />,
+                  }
+                : p.gender.toLowerCase() === "women"
+                  ? {
+                      label: "زنانه",
+                      icon: <IoWomanOutline className="w-3.5 h-3.5" />,
+                    }
+                  : {
+                      label: "مشترک",
+                      icon: <IoMaleFemaleOutline className="w-3.5 h-3.5" />,
+                    };
+
+            return (
+              <Link
+                key={p.id}
+                href={`/products/${p.id}`}
+                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-secondary/60 bg-secondary/10 transition-all duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-lg"
+              >
+                <div>
+                  {/* IMAGE PREVIEW FRAME */}
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-secondary/20 border-b border-secondary/40 flex items-center justify-center">
+                    {p.image ? (
+                      <img
+                        src={p.image}
+                        alt={p.name}
+                        className="h-4/5 w-4/5 object-contain p-4 transition duration-500 group-hover:scale-105 filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.05)]"
+                      />
+                    ) : (
+                      <div className="text-xs font-bold text-neutral-400">
+                        فاقد تصویر محصول
+                      </div>
+                    )}
+
+                    {/* Premium minimalist card position index number */}
+                    <div className="absolute right-4 top-4 text-[10px] font-bold tracking-widest text-neutral-400">
+                      {(index + 1).toLocaleString("fa-IR", {
+                        minimumIntegerDigits: 2,
+                      })}
+                    </div>
+
+                    {/* Floating Gender/Type Badge */}
+                    <div className="absolute left-4 top-4 flex items-center gap-1 rounded-md border border-secondary/60 bg-background/80 backdrop-blur-xs px-2 py-1 text-[10px] font-bold text-neutral-500">
+                      {demographic.icon}
+                      <span>{demographic.label}</span>
+                    </div>
+
+                    {/* Gradient soft grounding backdrop shadow */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-transparent to-transparent pointer-events-none" />
                   </div>
-                )}
 
-                {/* soft gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)]/80 via-transparent to-transparent" />
+                  {/* ESSENTIAL WRITTEN DETAILS */}
+                  <div className="p-5 space-y-2.5">
+                    <span className="text-[10px] uppercase tracking-wider text-accent font-bold block">
+                      {p.brand}
+                    </span>
 
-                {/* index number */}
-                <div className="absolute left-4 top-4 text-xs tracking-[0.3em] text-foreground/40">
-                  {String(index + 1).padStart(2, "0")}
-                </div>
-              </div>
+                    <h2 className="line-clamp-1 text-base font-black text-primary transition-colors group-hover:text-accent">
+                      {p.name}
+                    </h2>
 
-              {/* CONTENT */}
-              <div className="space-y-3 p-5">
-                <h2 className="line-clamp-1 text-lg font-bold">{p.name}</h2>
-
-                <p className="line-clamp-2 text-xs leading-6 text-muted-foreground">
-                  {p.description || "بدون توضیحات"}
-                </p>
-
-                {/* META */}
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{p.brand}</span>
-                  <span>
-                    {p.gender === "men"
-                      ? "مردانه"
-                      : p.gender === "women"
-                        ? "زنانه"
-                        : "یونی‌سکس"}
-                  </span>
+                    <p className="line-clamp-2 text-xs leading-5 text-neutral-500 font-medium">
+                      {p.description ||
+                        "توضیحات تکمیلی پیرامون ساختار اسانس و هرم بویایی این عطر ثبت نشده است."}
+                    </p>
+                  </div>
                 </div>
 
-                {/* PRICE + CTA */}
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-sm font-semibold">
-                    {p.price.toLocaleString()} تومان
-                  </span>
+                {/* TRANSACTION PRICING BAR */}
+                <div className="px-5 pb-5 pt-2 border-t border-secondary/30 mt-auto flex items-center justify-between">
+                  <div className="text-sm font-black text-primary">
+                    {p.price.toLocaleString("fa-IR")}{" "}
+                    <span className="text-[10px] font-medium text-neutral-400 mr-0.5">
+                      تومان
+                    </span>
+                  </div>
 
-                  <span className="text-xs text-[var(--accent)] group-hover:translate-x-1 transition">
-                    مشاهده →
-                  </span>
+                  {/* Clean vector micro-arrow that translates on container hover */}
+                  <div className="flex items-center gap-1 text-[11px] font-bold text-accent transition-colors">
+                    <span>مشاهده</span>
+                    <IoArrowBackOutline className="w-3.5 h-3.5 transition duration-300 transform group-hover:-translate-x-1" />
+                  </div>
                 </div>
-              </div>
 
-              {/* hover glow */}
-              <div className="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100">
-                <div className="absolute -bottom-10 left-1/2 h-32 w-32 -translate-x-1/2 rounded-full bg-[var(--accent)]/10 blur-3xl" />
-              </div>
-            </Link>
-          ))}
+                {/* Luxury ambient light hover flare hidden behind contents */}
+                <div className="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100 z-0">
+                  <div className="absolute -bottom-12 left-1/2 h-32 w-32 -translate-x-1/2 rounded-full bg-accent/5 blur-3xl" />
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>

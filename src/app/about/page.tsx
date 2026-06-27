@@ -1,107 +1,114 @@
 import Link from "next/link";
+import Image from "next/image";
+import {
+  IoSparklesOutline,
+  IoArrowBackOutline,
+  IoCreateOutline,
+  IoLayersOutline,
+} from "react-icons/io5";
 
 export default function AboutPage() {
   return (
     <div
       dir="rtl"
-      className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
+      className="min-h-screen bg-background text-foreground antialiased selection:bg-accent selection:text-primary"
     >
-      <div className="container mx-auto px-6 py-20 space-y-24">
-        {/* ───────── HERO ───────── */}
-        <section className="relative text-center space-y-6">
-          {/* ghost text */}
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span className="select-none text-[10rem] font-black opacity-[0.03]">
-              ما
+      <div className="container mx-auto px-4 py-12 md:py-24 max-w-5xl space-y-20 md:space-y-32">
+        {/* ───────── HERO EDITORIAL ───────── */}
+        <section className="relative text-center space-y-4 max-w-3xl mx-auto">
+          {/* Background Ambient Text */}
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center -z-10">
+            <span className="select-none text-[8rem] md:text-[14rem] font-black opacity-[0.02] tracking-widest">
+              عتیق
             </span>
           </div>
 
-          <p className="text-xs tracking-[0.35em] text-muted-foreground">
-            درباره برند
-          </p>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/5 px-3 py-1 text-[10px] font-bold text-accent">
+            <IoSparklesOutline className="w-3 h-3" />
+            <span>روایت خانه عطر عتیق</span>
+          </div>
 
-          <h1 className="text-4xl font-black leading-[1.2] lg:text-6xl">
-            ما فقط عطر نمی‌فروشیم
+          <h1 className="text-3xl font-black leading-tight sm:text-5xl lg:text-6xl text-primary">
+            تلاقی مینی‌مالیسم مدرن
             <br />
-            <span className="text-[var(--accent)]">ما خاطره می‌سازیم</span>
+            <span className="text-accent">و اصالت بویایی</span>
           </h1>
 
-          <p className="mx-auto max-w-2xl text-sm leading-8 text-muted-foreground">
-            ما یک برند ساده نیستیم — ما تجربه‌ای از رایحه، خاطره و احساس هستیم.
-            هر عطر در این مجموعه یک روایت است، نه یک محصول.
+          <p className="text-xs md:text-sm leading-6 md:leading-7 text-neutral-500 font-medium pt-2">
+            مجموعه عتیق بر پایه این باور شکل گرفته است که روایح، فراتر از
+            ترکیبات شیمیایی، امضاهایی نامرئی از هویت و خاطرات ما هستند. ما در
+            این تالار، هنر بویایی را در قالب دست‌ریزها و شاهکارهای کمیاب نیش
+            بازتعریف می‌کنیم.
           </p>
         </section>
 
         {/* ───────── STORY SPLIT ───────── */}
-        <section className="grid gap-16 lg:grid-cols-2 items-start">
-          <div className="space-y-6">
-            <p className="text-xs tracking-[0.35em] text-muted-foreground">
-              داستان ما
-            </p>
-
-            <h2 className="text-3xl font-bold leading-[1.3]">
-              شروع از یک خاطره ساده
+        <section className="grid gap-10 lg:grid-cols-12 items-center">
+          <div className="space-y-4 lg:col-span-6">
+            <span className="text-[10px] tracking-wider text-accent font-bold uppercase block">
+              فلسفه ما
+            </span>
+            <h2 className="text-2xl md:text-3xl font-black text-primary">
+              آغاز از یک شیفتگی بی‌پایان
             </h2>
-
-            <p className="text-sm leading-8 text-muted-foreground">
-              همه چیز از علاقه به بوهایی شروع شد که خاطره را زنده می‌کنند.
-              خیابان‌های بارانی، شب‌های گرم، و لحظه‌هایی که فقط یک رایحه
-              می‌تواند آن‌ها را برگرداند.
+            <p className="text-xs md:text-sm leading-7 text-neutral-500 font-medium">
+              همه چیز از جست‌وجو برای یافتن مفاهیمی آغاز شد که کلمات از بیان
+              آن‌ها عاجز بودند؛ نوت‌هایی که باران یک عصر پاییزی، سکوت ابهت‌آمیز
+              چوب‌های کهن یا طراوت بازارهای مدیترانه‌ای را بدون هیچ واسطه‌ای
+              بازسازی کنند.
             </p>
-
-            <p className="text-sm leading-8 text-muted-foreground">
-              این مجموعه ساخته شد تا عطرها فقط “بو” نباشند — بلکه احساس باشند.
+            <p className="text-xs md:text-sm leading-7 text-neutral-400 font-medium">
+              هدف ما در عتیق، ایجاد پناهگاهی برای کلکسیونرها و علاقه‌مندانی است
+              که به دنبال روایح متمایز، اصیل و به دور از هیاهوی بازارهای تجاری
+              انبوه هستند.
             </p>
           </div>
 
-          {/* visual block */}
-          <div className="relative overflow-hidden rounded-3xl bg-[var(--secondary)]/30 min-h-[420px] flex items-center justify-center">
-            <div className="absolute h-72 w-72 rounded-full bg-[var(--accent)]/10 blur-3xl" />
-
-            <div className="relative opacity-20 flex flex-col items-center gap-1">
-              <div className="h-3 w-6 rounded-t-full bg-foreground" />
-              <div className="h-2 w-10 bg-foreground" />
-              <div className="h-52 w-28 rounded-b-xl bg-foreground" />
-            </div>
+          {/* Premium Visual Frame */}
+          <div className="relative overflow-hidden rounded-3xl border border-secondary/60 bg-secondary/10 aspect-video lg:aspect-square w-full lg:col-span-6 h-[320px] lg:h-[400px] shadow-xs">
+            <Image
+              src="https://images.unsplash.com/photo-1615396899839-c99c121888b0?auto=format&fit=crop&w=800&q=80"
+              alt="هنر عطرسازی نیش"
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover grayscale-[10%]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent pointer-events-none" />
           </div>
         </section>
 
-        {/* ───────── MISSION ───────── */}
-        <section className="space-y-10">
-          <div className="text-center space-y-4">
-            <p className="text-xs tracking-[0.35em] text-muted-foreground">
-              ماموریت
-            </p>
-
-            <h2 className="text-3xl font-bold">تعریف هویت از طریق رایحه</h2>
-
-            <p className="mx-auto max-w-2xl text-sm leading-8 text-muted-foreground">
-              ماموریت ما ارائه عطرهایی است که شخصیت شما را تعریف می‌کنند، نه فقط
-              بوی شما را.
-            </p>
+        {/* ───────── MISSION & VALUE CARDS ───────── */}
+        <section className="space-y-8">
+          <div className="text-center space-y-2">
+            <span className="text-[10px] tracking-wider text-neutral-400 font-bold uppercase block">
+              چشم‌انداز
+            </span>
+            <h2 className="text-2xl md:text-3xl font-black text-primary">
+              تفسیر کاراکتر در قالب اسانس
+            </h2>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-3">
             {[
               {
-                title: "هویت",
-                body: "هر عطر باید بازتاب شخصیت باشد، نه تکرار بازار.",
+                title: "تمایز فردی",
+                body: "هر اثر در کاتالوگ عتیق باید بازتابی از یک شخصیت مستقل باشد، نه تکرار کلیشه‌های رایج بازار.",
               },
               {
-                title: "انتخاب",
-                body: "فقط رایحه‌هایی وارد مجموعه می‌شوند که احساس واقعی ایجاد کنند.",
+                title: "کیوریتوری سخت‌گیرانه",
+                body: "تنها اسانس‌هایی به این صندوقچه راه می‌یابند که دارای عمق، هماهنگی و خلوص بویایی مثال‌زدنی باشند.",
               },
               {
-                title: "تجربه",
-                body: "تمرکز ما روی حس نهایی کاربر است، نه فقط محصول.",
+                title: "تجربه بویایی خالص",
+                body: "تمرکز ما بر روی معماری نوت‌ها و احساس نهایی شماست؛ فراتر از نام برندها و بسته‌بندی‌های تجاری.",
               },
-            ].map((item) => (
+            ].map((item, idx) => (
               <div
-                key={item.title}
-                className="rounded-2xl border border-border/40 bg-[var(--secondary)]/30 p-6 space-y-2"
+                key={idx}
+                className="rounded-2xl border border-secondary/50 bg-secondary/10 p-5 md:p-6 space-y-2 hover:border-neutral-300 transition duration-200"
               >
-                <h3 className="font-semibold">{item.title}</h3>
-                <p className="text-sm leading-7 text-muted-foreground">
+                <h3 className="font-bold text-sm text-primary">{item.title}</h3>
+                <p className="text-xs leading-6 text-neutral-400 font-medium">
                   {item.body}
                 </p>
               </div>
@@ -109,45 +116,44 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ───────── PROCESS ───────── */}
-        <section className="space-y-10">
-          <div className="text-center space-y-4">
-            <p className="text-xs tracking-[0.35em] text-muted-foreground">
-              انتخاب رایحه
-            </p>
-
-            <h2 className="text-3xl font-bold">هر عطر یک فیلتر سخت دارد</h2>
+        {/* ───────── SELECTION PROCESS ───────── */}
+        <section className="space-y-8">
+          <div className="text-center space-y-2">
+            <span className="text-[10px] tracking-wider text-neutral-400 font-bold uppercase block">
+              فرآیند اصالت
+            </span>
+            <h2 className="text-2xl md:text-3xl font-black text-primary">
+              فیلترهای سه‌گانه ارزیابی روایح
+            </h2>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <div className="space-y-6 text-sm leading-8 text-muted-foreground">
+          <div className="grid gap-8 lg:grid-cols-12 items-center">
+            <div className="space-y-4 text-xs md:text-sm leading-7 text-neutral-500 font-medium lg:col-span-6">
               <p>
-                هر محصول قبل از ورود، چندین مرحله بررسی کیفیت و تست رایحه را پشت
-                سر می‌گذارد.
+                پیش از قرارگیری هر رایحه در کاتالوگ رسمی، اسانس مورد نظر از
+                جنبه‌های مختلفی از جمله پایداری هرم بویایی، تغییر نوت منظم و
+                خلوص مواد اولیه مورد ارزیابی دقیق قرار می‌گیرد.
               </p>
-
               <p>
-                ما فقط عطرهایی را انتخاب می‌کنیم که بتوانند احساس واقعی ایجاد
-                کنند — نه فقط بوی خوش.
-              </p>
-
-              <p>
-                از نت اولیه تا نت پایانی، همه چیز باید هماهنگ و ماندگار باشد.
+                ما تعهد به اصالت را در جزءجزء فرآیند انتقال عطرها رعایت می‌کنیم
+                تا دکانت نهایی، کاملاً وفادار به شاهکار اولیه طراح آن باشد.
               </p>
             </div>
 
-            <div className="rounded-3xl border border-border/40 bg-[var(--secondary)]/20 p-8 space-y-4">
+            <div className="rounded-2xl border border-secondary/50 bg-secondary/10 p-6 space-y-3 lg:col-span-6 w-full">
               {[
-                { label: "تست رایحه", value: "مرحله 01" },
-                { label: "بررسی کیفیت", value: "مرحله 02" },
-                { label: "انتخاب نهایی", value: "مرحله 03" },
-              ].map((s) => (
+                { label: "آنالیز و تایید اصالت هرم بویایی", value: "۰۱" },
+                { label: "سنجش خلوص و پایداری اسانس", value: "۰۲" },
+                { label: "کیوریتوری و انتقال آزمایشگاهی دست‌ریز", value: "۰۳" },
+              ].map((s, idx) => (
                 <div
-                  key={s.value}
-                  className="flex items-center justify-between"
+                  key={idx}
+                  className="flex items-center justify-between border-b border-secondary/40 pb-2.5 last:border-b-0 last:pb-0"
                 >
-                  <span className="text-sm">{s.label}</span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs font-bold text-primary">
+                    {s.label}
+                  </span>
+                  <span className="text-[10px] font-mono font-bold text-accent">
                     {s.value}
                   </span>
                 </div>
@@ -156,62 +162,28 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ───────── VALUES ───────── */}
-        <section className="space-y-10">
-          <div className="text-center space-y-4">
-            <p className="text-xs tracking-[0.35em] text-muted-foreground">
-              ارزش‌ها
-            </p>
-
-            <h2 className="text-3xl font-bold">چیزی که ما به آن پایبندیم</h2>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              {
-                title: "کیفیت",
-                body: "استفاده از بهترین ترکیبات برای تجربه‌ای ماندگار.",
-              },
-              {
-                title: "اصالت",
-                body: "هیچ رایحه‌ای کپی نیست، همه چیز انتخاب‌شده است.",
-              },
-              {
-                title: "احساس",
-                body: "تمرکز اصلی ما روی احساسی است که عطر ایجاد می‌کند.",
-              },
-            ].map((v) => (
-              <div
-                key={v.title}
-                className="rounded-2xl border border-border/40 bg-[var(--secondary)]/30 p-6"
-              >
-                <h3 className="font-semibold">{v.title}</h3>
-                <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                  {v.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ───────── CTA ───────── */}
-        <section className="text-center space-y-6">
-          <p className="text-xs tracking-[0.35em] text-muted-foreground">
-            همراه ما باشید
+        {/* ───────── EDITORIAL FOOTER CTA ───────── */}
+        <section className="text-center space-y-4 max-w-xl mx-auto border-t border-secondary/60 pt-12 md:pt-16">
+          <span className="text-[10px] tracking-wider text-accent font-bold uppercase block">
+            همگام با روایح اصیل
+          </span>
+          <h2 className="text-2xl md:text-3xl font-black text-primary">
+            یک سفر بویایی سفارشی
+          </h2>
+          <p className="text-xs md:text-sm leading-6 text-neutral-500 font-medium">
+            گالری عتیق بستری برای کشف امضاهای جدید است؛ تجربه‌ای منحصر‌به‌فرد که
+            با هر شیشه عطر، روایتی جدید از شما را بازگو می‌کند.
           </p>
 
-          <h2 className="text-3xl font-bold">این فقط یک فروشگاه نیست</h2>
-
-          <p className="mx-auto max-w-xl text-sm leading-8 text-muted-foreground">
-            این یک تجربه است — تجربه‌ای که هر بار با یک رایحه جدید شروع می‌شود.
-          </p>
-
-          <Link
-            href="/products"
-            className="inline-flex items-center justify-center rounded-full bg-[var(--primary)] px-8 py-3 text-sm font-medium text-[var(--background)] transition hover:scale-105"
-          >
-            مشاهده محصولات
-          </Link>
+          <div className="pt-2">
+            <Link
+              href="/products"
+              className="group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-xs font-bold text-background transition hover:opacity-90 active:scale-95 duration-150 shadow-xs"
+            >
+              <span>مرور کاتالوگ روایح</span>
+              <IoArrowBackOutline className="w-3.5 h-3.5 transition duration-300 transform group-hover:-translate-x-1" />
+            </Link>
+          </div>
         </section>
       </div>
     </div>
