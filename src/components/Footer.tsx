@@ -132,7 +132,7 @@ export default function Footer() {
             <span className="text-rose-500">♥</span>
             <span>توسط</span>
             <a
-              href="https://arshia.dev"
+              href="https://aaui.ir"
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-foreground transition hover:opacity-70"

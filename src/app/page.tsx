@@ -11,7 +11,6 @@ export default async function HomePage() {
     headers: await headers(),
   });
   const sliders = await db.select().from(sliderItem);
-  console.log(sliders);
 
   const user = session?.user;
 

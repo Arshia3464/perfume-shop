@@ -20,10 +20,10 @@ export default function Navbar({ user }: Props) {
   return (
     <header dir="rtl" className="fixed top-0 left-0 w-full z-50">
       <div className="mx-auto max-w-6xl px-6 pt-4">
-        <div className="relative flex flex-row-reverse items-center justify-between rounded-2xl border border-black/10 bg-[var(--background)]/70 backdrop-blur-2xl px-6 py-3">
+        <div className="relative flex flex-row-reverse items-center justify-between rounded-2xl border border-black/10 bg-(--background)/70 backdrop-blur-2xl px-6 py-3">
           {/* ambient glow */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
-            <div className="absolute -top-10 right-1/2 h-24 w-24 translate-x-1/2 rounded-full bg-[var(--accent)]/10 blur-2xl" />
+            <div className="absolute -top-10 right-1/2 h-24 w-24 translate-x-1/2 rounded-full bg-(--accent)/10 blur-2xl" />
           </div>
 
           {/* ───────── LEFT SIDE (NAV + AUTH) ───────── */}
@@ -90,9 +90,9 @@ export default function Navbar({ user }: Props) {
             href="/"
             className="relative text-sm tracking-[0.6em] font-light text-foreground"
           >
-            <span className="relative z-10">PERFUME</span>
+            <span className="relative z-10">ROYAL</span>
 
-            <span className="absolute -bottom-2 right-1/2 h-px w-12 translate-x-1/2 bg-[var(--accent)] opacity-70" />
+            <span className="absolute -bottom-1 right-1/2 h-px w-12 translate-x-1/2 bg-accent opacity-70" />
           </Link>
         </div>
       </div>

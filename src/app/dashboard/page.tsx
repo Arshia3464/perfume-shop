@@ -120,16 +120,16 @@ export default async function DashboardPage() {
     >
       {/* Ambient background glows */}
       <div className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute -top-32 -left-32 h-[400px] w-[400px] rounded-full bg-accent/5 blur-[120px]" />
-        <div className="absolute bottom-0 right-0 h-[500px] w-[500px] rounded-full bg-secondary/10 blur-[140px]" />
+        <div className="absolute -top-32 -left-32 h-100 w-100 rounded-full bg-accent/5 blur-[120px]" />
+        <div className="absolute bottom-0 right-0 h-125 w-125 rounded-full bg-secondary/10 blur-[140px]" />
       </div>
 
-      <div className="relative container mx-auto px-4 py-12 md:py-24 max-w-6xl space-y-12 md:space-y-16 z-10">
+      <div className="relative container mx-auto px-4 py-12 md:py-12 max-w-6xl space-y-12 md:space-y-16 z-10">
         {/* ───────── HERO PANELS ───────── */}
         <section className="relative overflow-hidden rounded-3xl border border-secondary/60 bg-secondary/20 backdrop-blur-md p-6 md:p-10 shadow-sm">
           {/* Elegant Ghost Typography */}
-          <span className="absolute -bottom-6 left-6 text-[5rem] md:text-[8rem] font-black opacity-[0.02] select-none tracking-widest">
-            ATIGH
+          <span className="absolute -bottom-6 left-6 text-[5rem] md:text-[8rem] font-black opacity-[0.03] select-none tracking-widest">
+            ROYAL
           </span>
 
           <div className="space-y-2 max-w-xl">
@@ -149,7 +149,7 @@ export default async function DashboardPage() {
         {/* ───────── METRIC CARDS STRIP ───────── */}
         <section className="grid gap-4 md:grid-cols-3">
           {/* Orders Metric */}
-          <div className="relative overflow-hidden rounded-2xl border border-secondary/60 bg-secondary/20 p-5 md:p-6 backdrop-blur-sm flex justify-between items-center">
+          <div className="relative overflow-hidden shadow rounded-2xl border border-secondary/60 bg-secondary/20 p-5 md:p-6 backdrop-blur-sm flex justify-between items-center">
             <div className="space-y-2">
               <p className="text-xs font-bold text-neutral-400">
                 بایگانی سفارشات گالری
@@ -169,7 +169,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Cart Metric */}
-          <div className="relative overflow-hidden rounded-2xl border border-secondary/60 bg-secondary/20 p-5 md:p-6 backdrop-blur-sm flex justify-between items-center">
+          <div className="relative overflow-hidden shadow rounded-2xl border border-secondary/60 bg-secondary/20 p-5 md:p-6 backdrop-blur-sm flex justify-between items-center">
             <div className="space-y-2">
               <p className="text-xs font-bold text-neutral-400">
                 سبد خرید در جریان
@@ -189,7 +189,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Role Metric */}
-          <div className="relative overflow-hidden rounded-2xl border border-secondary/60 bg-secondary/20 p-5 md:p-6 backdrop-blur-sm flex justify-between items-center">
+          <div className="relative overflow-hidden shadow rounded-2xl border border-secondary/60 bg-secondary/20 p-5 md:p-6 backdrop-blur-sm flex justify-between items-center">
             <div className="space-y-2">
               <p className="text-xs font-bold text-neutral-400">
                 سطح اشتراک کاربری
@@ -210,7 +210,7 @@ export default async function DashboardPage() {
         <div className="grid gap-10 lg:grid-cols-12 items-start">
           {/* LEFT: CART ITEMS */}
           <section className="lg:col-span-7 space-y-4">
-            <div className="flex items-center gap-2 border-b border-secondary/60 pb-3">
+            <div className="flex items-center gap-2 border-b border-foreground/10 pb-3">
               <IoBagHandleOutline className="w-4 h-4 text-accent" />
               <h2 className="text-xs uppercase tracking-wider font-bold text-neutral-500">
                 سبد خرید جاری (اقلام صندوقچه)
@@ -219,7 +219,7 @@ export default async function DashboardPage() {
 
             <div className="space-y-3">
               {cartItems.length === 0 ? (
-                <div className="text-center py-10 rounded-2xl border border-dashed border-neutral-300/60 bg-secondary/5 text-xs text-neutral-400">
+                <div className="text-center py-10 rounded-2xl border border-dashed border-foreground/30 bg-secondary/5 text-xs text-neutral-400">
                   هیچ رایحه فعالی در سبد خرید مجلل شما یافت نشد.
                 </div>
               ) : (
@@ -275,7 +275,7 @@ export default async function DashboardPage() {
 
           {/* RIGHT: SAVED FRAGRANCES (WISHLIST) */}
           <section className="lg:col-span-5 space-y-4">
-            <div className="flex items-center gap-2 border-b border-secondary/60 pb-3">
+            <div className="flex items-center gap-2 border-b border-foreground/10 pb-3">
               <FiHeart className="w-4 h-4 text-accent" />
               <h2 className="text-xs uppercase tracking-wider font-bold text-neutral-500">
                 روایح نشان‌شده و محبوب
@@ -284,7 +284,7 @@ export default async function DashboardPage() {
 
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
               {wishListItems.length === 0 ? (
-                <div className="text-center py-10 col-span-full rounded-2xl border border-dashed border-neutral-300/60 bg-secondary/5 text-xs text-neutral-400">
+                <div className="text-center py-10 col-span-full rounded-2xl border border-dashed border-foreground/30 bg-secondary/5 text-xs text-neutral-400">
                   هنوز اسانس یا ادکلنی به لیست علاقه‌مندی‌ها پیوست نشده است.
                 </div>
               ) : (
@@ -341,7 +341,7 @@ export default async function DashboardPage() {
 
           <div className="space-y-3">
             {orders.length === 0 ? (
-              <div className="text-center py-12 rounded-2xl border border-dashed border-neutral-300/60 bg-secondary/5 text-xs text-neutral-400">
+              <div className="text-center py-12 rounded-2xl border border-dashed border-foreground/30 bg-secondary/5 text-xs text-neutral-400">
                 هیچ تراکنش یا تاریخچه خریدی برای این حساب ثبت نشده است.
               </div>
             ) : (
