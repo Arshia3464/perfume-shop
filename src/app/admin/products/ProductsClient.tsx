@@ -10,7 +10,7 @@ import {
   FiUpload,
   FiCheck,
 } from "react-icons/fi";
-import { createProduct, updateProduct } from "./actions";
+import { createProduct, deleteProduct, updateProduct } from "./actions";
 
 type Product = {
   id: string;
@@ -453,10 +453,10 @@ function EditProductForm({
       className="space-y-4 text-right antialiased"
     >
       <div>
-        <h2 className="text-lg font-light text-[var(--foreground)] tracking-tight">
+        <h2 className="text-lg font-light text-foreground tracking-tight">
           ویرایش شناسنامه عطر
         </h2>
-        <p className="text-[11px] text-[var(--foreground)]/40 font-light mt-0.5">
+        <p className="text-[11px] text-(--foreground)/40 font-light mt-0.5">
           اصلاح مشخصات ساختاری، موجودی انبار و بیانیه بویایی رایحه.
         </p>
       </div>
@@ -464,26 +464,26 @@ function EditProductForm({
       <input type="hidden" name="id" value={product.id} />
 
       <div className="space-y-1">
-        <label className="text-[11px] text-[var(--foreground)]/50 font-light">
+        <label className="text-[11px] text-(--foreground)/50 font-light">
           نام محصول
         </label>
         <input
           required
           name="name"
           defaultValue={product.name}
-          className="w-full bg-[var(--secondary)]/10 border border-[var(--accent)]/20 rounded-xl px-3 py-2 text-sm outline-none focus:border-[var(--accent)] text-[var(--foreground)] font-light"
+          className="w-full bg-secondary/10 border border-accent/20 rounded-xl px-3 py-2 text-sm outline-none focus:border-accent text-foreground font-light"
         />
       </div>
 
       <div className="space-y-1">
-        <label className="text-[11px] text-[var(--foreground)]/50 font-light">
+        <label className="text-[11px] text-(--foreground)/50 font-light">
           توضیحات و بیانیه بویایی
         </label>
         <textarea
           required
           name="description"
           defaultValue={product.description || ""}
-          className="w-full bg-[var(--secondary)]/10 border border-[var(--accent)]/20 rounded-xl px-3 py-2 text-sm outline-none focus:border-[var(--accent)] min-h-24 max-h-40 text-[var(--foreground)] font-light resize-y"
+          className="w-full bg-secondary/10 border border-accent/20 rounded-xl px-3 py-2 text-sm outline-none focus:border-accent min-h-24 max-h-40 text-foreground font-light resize-y"
         />
       </div>
 
@@ -622,12 +622,18 @@ function EditProductForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full mt-2 bg-[var(--foreground)] text-[var(--background)] py-2.5 rounded-xl text-sm font-medium hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full mt-2 bg-foreground text-background py-2.5 rounded-xl text-sm font-medium hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
       >
         <FiCheck className="w-4 h-4" />
         <span>
           {isSubmitting ? "در حال به‌روزرسانی..." : "ذخیره تغییرات شناسنامه"}
         </span>
+      </button>
+      <button
+        onClick={() => deleteProduct(product.id, product.image)}
+        className="w-full mt-2 bg-accent text-background py-2.5 rounded-xl text-sm font-medium hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+      >
+        حذف آیتم
       </button>
     </form>
   );

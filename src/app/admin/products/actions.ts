@@ -1,6 +1,10 @@
 "use server";
 
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import { db } from "@/db";
 import { product } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -130,5 +134,39 @@ export async function updateProduct(formData: FormData) {
   } catch (error) {
     console.error("Failed to modify product record:", error);
     return { success: false, error: "Product update failed." };
+  }
+}
+
+export async function deleteProduct(
+  productId: string,
+  imageUrl: string | null,
+) {
+  try {
+    // 1. Only try to delete from MinIO if a valid image URL exists
+    if (imageUrl) {
+      // Extract the filename/key out of the full URL string
+      // e.g. "https://.../perfumes/file.png" -> split gives ["https:", "", "...", "perfumes", "file.png"]
+      // pop() gives "file.png". Your key is "file.png" (or "perfumes/file.png" depending on your bucket folder nesting)
+      const fileKey = imageUrl.split("/").pop();
+
+      if (fileKey) {
+        await s3Client.send(
+          new DeleteObjectCommand({
+            Bucket: process.env.MINIO_BUCKET_NAME,
+            Key: fileKey, // The exact key/name of the file inside the bucket
+          }),
+        );
+        console.log("Successfully deleted image from storage:", fileKey);
+      }
+    }
+
+    // 2. Delete the record from your Chabokan PostgreSQL database via Drizzle ORM
+    await db.delete(product).where(eq(product.id, productId));
+    console.log("Successfully deleted product from database:", productId);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete product:", error);
+    throw new Error("Deletion sequence failed");
   }
 }

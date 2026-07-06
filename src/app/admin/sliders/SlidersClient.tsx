@@ -10,7 +10,6 @@ import {
   FiCheck,
   FiTrash2,
   FiEdit3,
-  FiLayers,
 } from "react-icons/fi";
 import { createSlider, updateSlider, deleteSlider } from "./actions";
 import { useRouter } from "next/navigation";
@@ -38,7 +37,7 @@ type SliderFormState = {
   id: string;
   productId: string;
   text: string;
-  image: string; // base64 or existing URL
+  image: string; // Existing URL or placeholder path
   order: number;
 };
 
@@ -84,13 +83,16 @@ export default function SlidersClient({
     });
   }
 
-  async function handleCreate(imageBase64: string) {
+  async function handleCreate(file: File | null) {
     setIsSubmitting(true);
     const fd = new FormData();
     fd.append("productId", form.productId);
     fd.append("text", form.text);
     fd.append("order", String(form.order));
-    if (imageBase64) fd.append("image", imageBase64);
+
+    if (file) {
+      fd.append("image", file);
+    }
 
     await createSlider(fd);
     setOpen(false);
@@ -99,14 +101,19 @@ export default function SlidersClient({
     router.refresh();
   }
 
-  async function handleUpdate(imageBase64: string) {
+  async function handleUpdate(file: File | null) {
     setIsSubmitting(true);
     const fd = new FormData();
     fd.append("id", form.id);
     fd.append("productId", form.productId);
     fd.append("text", form.text);
     fd.append("order", String(form.order));
-    fd.append("image", imageBase64 || form.image);
+
+    if (file) {
+      fd.append("image", file);
+    } else {
+      fd.append("image", form.image);
+    }
 
     await updateSlider(fd);
     setEditing(null);
@@ -122,7 +129,6 @@ export default function SlidersClient({
     }
   }
 
-  // Map products into a quick lookup dictionary for displaying titles inside cards
   const productLookup = useMemo(() => {
     return new Map(Products.map((p) => [p.id, p]));
   }, [Products]);
@@ -177,7 +183,7 @@ export default function SlidersClient({
                     <img
                       src={s.image}
                       alt={s.text || "Banner"}
-                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[var(--foreground)]/20 text-xs font-light">
@@ -228,7 +234,6 @@ export default function SlidersClient({
 
       {/* ───── INTERACTIVE MODALS BOUNDARY ───── */}
       <AnimatePresence mode="wait">
-        {/* CREATE MODAL */}
         {open && (
           <Modal
             key="create-slider-modal"
@@ -249,7 +254,6 @@ export default function SlidersClient({
           </Modal>
         )}
 
-        {/* EDIT MODAL */}
         {editing && (
           <Modal
             key="edit-slider-modal"
@@ -315,7 +319,7 @@ type SliderFormProps = {
   form: SliderFormState;
   setForm: React.Dispatch<React.SetStateAction<SliderFormState>>;
   products: Product[];
-  onSubmit: (imageBase64: string) => Promise<void>;
+  onSubmit: (file: File | null) => Promise<void>;
   title: string;
   subtitle: string;
   isSubmitting: boolean;
@@ -330,15 +334,15 @@ function SliderForm({
   subtitle,
   isSubmitting,
 }: SliderFormProps) {
-  const [imageBase64, setImageBase64] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => setImageBase64(reader.result as string);
-    reader.readAsDataURL(file);
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -347,10 +351,10 @@ function SliderForm({
       alert("لطفا یک محصول هدف را متصل کنید.");
       return;
     }
-    await onSubmit(imageBase64);
+    await onSubmit(selectedFile);
   }
 
-  const previewSrc = imageBase64 || form.image;
+  const previewSrc = previewUrl || form.image;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 text-right antialiased">
@@ -427,7 +431,7 @@ function SliderForm({
       {/* IMAGE ARTIFACT DISK SELECTION */}
       <div className="space-y-1.5">
         <label className="text-[11px] text-[var(--foreground)]/50 font-light">
-          بوم تصویر عریض اسلایدر (کاور ۱۶:۹ توصیه می‌شود)
+          بوم تصویر عرید اسلایدر (کاور ۱۶:۹ توصیه می‌شود)
         </label>
         <div className="flex items-center gap-4">
           <label className="flex items-center justify-center gap-2 px-4 py-2 border border-[var(--accent)]/30 rounded-xl bg-[var(--secondary)]/10 hover:bg-[var(--secondary)]/30 text-xs text-[var(--foreground)]/70 cursor-pointer transition-colors font-light">
