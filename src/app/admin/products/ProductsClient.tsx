@@ -214,18 +214,16 @@ function Modal({
 function AddProductForm({ onClose }: { onClose: () => void }) {
   const [gender, setGender] = useState("unisex");
   const [season, setSeason] = useState("spring");
-  const [image, setImage] = useState("");
+  // Holds local URL object string purely for visual dashboard previews
+  const [preview, setPreview] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImage(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    // Create an instant runtime memory URL link for the img source layout
+    setPreview(URL.createObjectURL(file));
   };
 
   return (
@@ -234,7 +232,7 @@ function AddProductForm({ onClose }: { onClose: () => void }) {
         setIsSubmitting(true);
         formData.append("gender", gender);
         formData.append("season", season);
-        formData.append("image", image);
+
         await createProduct(formData);
         setIsSubmitting(false);
         onClose();
@@ -390,15 +388,17 @@ function AddProductForm({ onClose }: { onClose: () => void }) {
             <FiUpload className="w-3.5 h-3.5" />
             <span>بارگذاری تصویر...</span>
             <input
+              required
               type="file"
+              name="image" // CRUCIAL attribute flag for native FormData compilation
               accept="image/*"
-              onChange={handleImage}
+              onChange={handleImageChange}
               className="hidden"
             />
           </label>
-          {image && (
+          {preview && (
             <img
-              src={image}
+              src={preview}
               alt="Preview"
               className="w-12 h-12 object-cover rounded-lg border border-[var(--accent)]/20 shadow-sm"
             />
@@ -427,18 +427,15 @@ function EditProductForm({
 }) {
   const [gender, setGender] = useState(product.gender || "unisex");
   const [season, setSeason] = useState(product.season || "spring");
-  const [image, setImage] = useState(product.image || "");
+  // Pre-populate with database image link string if available for preview layout
+  const [preview, setPreview] = useState<string>(product.image || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImage(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    setPreview(URL.createObjectURL(file));
   };
 
   return (
@@ -447,7 +444,6 @@ function EditProductForm({
         setIsSubmitting(true);
         formData.append("gender", gender);
         formData.append("season", season);
-        formData.append("image", image);
 
         await updateProduct(formData);
         setIsSubmitting(false);
@@ -607,14 +603,15 @@ function EditProductForm({
             <span>بارگذاری تصویر جدید...</span>
             <input
               type="file"
+              name="image" // CRUCIAL attribute flag for native FormData compilation
               accept="image/*"
-              onChange={handleImage}
+              onChange={handleImageChange}
               className="hidden"
             />
           </label>
-          {image && (
+          {preview && (
             <img
-              src={image}
+              src={preview}
               alt="Preview"
               className="w-12 h-12 object-cover rounded-lg border border-[var(--accent)]/20 shadow-sm"
             />
