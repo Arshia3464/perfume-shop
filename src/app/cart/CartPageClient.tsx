@@ -293,7 +293,7 @@ export default function CartPageClient({ initialItems, userId }: Props) {
                     onChange={(e) =>
                       updateShipping({ fullName: e.target.value })
                     }
-                    placeholder="مثال: آرشیا عبدوس"
+                    placeholder="مثال: عرشیا احمدی"
                     className="w-full p-3 bg-background text-xs border border-accent/10 rounded-xl focus:outline-none focus:border-accent/40 text-primary"
                   />
                 </div>
@@ -354,7 +354,7 @@ export default function CartPageClient({ initialItems, userId }: Props) {
 
                 <div className="space-y-1.5 md:col-span-2">
                   <label className="text-[11px] text-primary/60 font-medium">
-                    کد پستی ده رقمی (ZIP Code)
+                    کد پستی ده رقمی
                   </label>
                   <input
                     type="text"
@@ -391,9 +391,7 @@ export default function CartPageClient({ initialItems, userId }: Props) {
             <div className="bg-secondary/10 border border-accent/10 rounded-2xl p-6 space-y-6">
               <div className="flex items-center gap-2 border-b border-accent/10 pb-3">
                 <IoCardOutline className="w-5 h-5 text-accent" />
-                <h2 className="text-sm font-medium">
-                  انتخاب شیوه پرداخت و تسویه حساب ملوکانه
-                </h2>
+                <h2 className="text-sm font-medium">انتخاب شیوه پرداخت</h2>
               </div>
               <div className="space-y-3">
                 <label className="flex items-center justify-between p-4 rounded-xl border border-accent/30 bg-background cursor-pointer hover:border-accent/50 transition-all">

@@ -39,8 +39,7 @@ const COLLECTIONS: Collection[] = [
     title: "اصالت شرق",
     description:
       "ترکیب‌هایی عمیق بر پایه عود طبیعی، رایحه چرم و صمغ‌های گران‌بها که با حرارت پوست به آرامی جان می‌گیرند.",
-    image:
-      "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1200&q=80",
+    image: "/main1.avif",
     accent: "bg-amber-950/60 border-amber-500/30 text-amber-200",
     tag: "نسخه‌های کلکسیونی",
   },
@@ -50,8 +49,7 @@ const COLLECTIONS: Collection[] = [
     title: "شکوفه‌های گراس",
     description:
       "روایحی ظریف و باوقار از تقطیر گل‌های مزارع انحصاری فرانسه؛ سمفونی هماهنگی از یاس، رز دمشقی و بهارنارنج.",
-    image:
-      "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80",
+    image: "/main2.avif",
     accent: "bg-rose-950/60 border-rose-500/30 text-rose-200",
     tag: "جدیدترین‌ها",
   },
@@ -61,8 +59,7 @@ const COLLECTIONS: Collection[] = [
     title: "مینی‌مالیسم سرد",
     description:
       "رایحه‌ای ترد و مدرن حاصل ترکیب صنوبر کوهستانی، خس‌خس مرطوب و نوت‌های اوزونیک برای سلیقه‌های خاص.",
-    image:
-      "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80",
+    image: "/main3.avif",
     accent: "bg-emerald-950/60 border-emerald-500/30 text-emerald-200",
     tag: "تعداد محدود",
   },
@@ -279,7 +276,7 @@ export default function FeaturedSection() {
 
             <div className="relative overflow-hidden rounded-3xl bg-secondary/20 border border-secondary/60 aspect-[4/5] w-full flex items-center justify-center shadow-xs z-10">
               <Image
-                src="https://images.unsplash.com/photo-1547887538-e3a2f32cb1cc?auto=format&fit=crop&w=1000&q=80"
+                src="/main4.avif"
                 alt="Oud Ispahan Spotlight"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"

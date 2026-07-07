@@ -67,7 +67,7 @@ export default function AboutPage() {
           {/* Premium Visual Frame */}
           <div className="relative overflow-hidden rounded-3xl border border-secondary/60 bg-secondary/10 aspect-video lg:aspect-square w-full lg:col-span-6 h-[320px] lg:h-[400px] shadow-xs">
             <Image
-              src="https://images.unsplash.com/photo-1615396899839-c99c121888b0?auto=format&fit=crop&w=800&q=80"
+              src="/story.avif"
               alt="هنر عطرسازی نیش"
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"

@@ -46,7 +46,7 @@ export default function AdminSidebar() {
     {
       id: "users",
       label: "فهرست کاربران",
-      href: "/admin/users",
+      href: "/admin/members",
       icon: <FiUsers className="w-4 h-4" />,
     },
   ];

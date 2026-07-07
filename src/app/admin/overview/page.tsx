@@ -17,7 +17,7 @@ export default async function AdminOverviewPage() {
   const sliders = await db.select().from(sliderItem);
 
   return (
-    <div className="min-h-screen w-full text-left bg-zinc-50 p-6">
+    <div className="min-h-screen w-full text-left  p-6">
       <div className="max-w-6xl mx-auto space-y-8">
         <h1 className="text-2xl font-semibold">Database Overview</h1>
 
@@ -90,7 +90,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white border rounded-2xl p-4 space-y-2">
+    <div className=" border rounded-2xl p-4 space-y-2">
       <h2 className="font-semibold">{title}</h2>
       <div className="text-sm text-gray-600 space-y-1">{children}</div>
     </div>
