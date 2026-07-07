@@ -1,5 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import Link from "next/link";
+import { redirect } from "next/navigation"; // Added for sign-out routing safety
 
 import { db } from "@/db";
 import { order, cartItem, product, wishlistItem } from "@/db/schema";
@@ -16,6 +18,9 @@ import {
   IoCheckmarkCircleOutline,
   IoCarOutline,
   IoCubeOutline,
+  IoArrowForwardOutline,
+  IoLogOutOutline,
+  IoChevronBackOutline, // Imported logout icon
 } from "react-icons/io5";
 import { FiUser, FiShoppingBag, FiHeart } from "react-icons/fi";
 
@@ -34,6 +39,11 @@ const statusMap: Record<
     color: "text-amber-600 bg-amber-500/5 border-amber-500/20",
     icon: <IoTimeOutline className="w-3.5 h-3.5" />,
   },
+  processing: {
+    label: "در حال آماده‌سازی مرسوله",
+    color: "text-blue-600 bg-blue-500/5 border-blue-500/20",
+    icon: <IoTimeOutline className="w-3.5 h-3.5" />,
+  },
   paid: {
     label: "تایید اصالت و پرداخت شده",
     color: "text-emerald-600 bg-emerald-500/5 border-emerald-500/20",
@@ -41,7 +51,7 @@ const statusMap: Record<
   },
   shipped: {
     label: "ارسال شده با پست اختصاصی",
-    color: "text-blue-600 bg-blue-500/5 border-blue-500/20",
+    color: "text-purple-600 bg-purple-500/5 border-purple-500/10",
     icon: <IoCarOutline className="w-3.5 h-3.5" />,
   },
   delivered: {
@@ -60,18 +70,18 @@ export default async function DashboardPage() {
     return (
       <div
         dir="rtl"
-        className="min-h-screen flex flex-col gap-4 items-center justify-center bg-background text-foreground antialiased"
+        className="min-h-screen bg-background text-foreground flex flex-col gap-4 items-center justify-center antialiased"
       >
         <IoShieldCheckmarkOutline className="w-10 h-10 text-accent/60 animate-pulse" />
         <p className="text-sm font-medium text-neutral-500">
           جهت دسترسی به صندوقچه شخصی خود، ابتدا وارد شوید.
         </p>
-        <a
+        <Link
           href="/login"
           className="mt-2 rounded-full bg-primary px-6 py-2.5 text-xs font-bold text-background transition hover:opacity-90 active:scale-95"
         >
           ورود به حساب
-        </a>
+        </Link>
       </div>
     );
   }
@@ -113,10 +123,19 @@ export default async function DashboardPage() {
   const formattedCartCount = cartItems.length.toLocaleString("fa-IR");
   const userRoleString = roleMap[session.user.role] || session.user.role;
 
+  // Inline Secure Server Action for handling Logout pipeline session clearance
+  const handleSignOutAction = async () => {
+    "use server";
+    await auth.api.signOut({
+      headers: await headers(),
+    });
+    redirect("/login");
+  };
+
   return (
     <div
       dir="rtl"
-      className="relative min-h-screen bg-background text-foreground overflow-hidden antialiased selection:bg-accent selection:text-primary"
+      className="relative min-h-screen pt-16 bg-background text-foreground overflow-hidden antialiased selection:bg-accent selection:text-primary"
     >
       {/* Ambient background glows */}
       <div className="pointer-events-none absolute inset-0 z-0">
@@ -124,11 +143,11 @@ export default async function DashboardPage() {
         <div className="absolute bottom-0 right-0 h-125 w-125 rounded-full bg-secondary/10 blur-[140px]" />
       </div>
 
-      <div className="relative container mx-auto px-4 py-12 md:py-12 max-w-6xl space-y-12 md:space-y-16 z-10">
+      <div className="relative container mx-auto px-4 py-12 max-w-6xl space-y-12 md:space-y-16 z-10">
         {/* ───────── HERO PANELS ───────── */}
-        <section className="relative overflow-hidden rounded-3xl border border-secondary/60 bg-secondary/20 backdrop-blur-md p-6 md:p-10 shadow-sm">
+        <section className="relative overflow-hidden rounded-3xl border border-secondary/60 bg-secondary/20 backdrop-blur-md p-6 md:p-10 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           {/* Elegant Ghost Typography */}
-          <span className="absolute -bottom-6 left-6 text-[5rem] md:text-[8rem] font-black opacity-[0.03] select-none tracking-widest">
+          <span className="absolute -bottom-6 left-6 text-[5rem] md:text-[8rem] font-black opacity-[0.03] select-none tracking-widest pointer-events-none">
             ROYAL
           </span>
 
@@ -143,16 +162,29 @@ export default async function DashboardPage() {
               اینجا آرشیو و صندوقچه شخصی روایح متمایز شماست؛ مجموعه‌ای نفیس که
               بر اساس هویت و اصالت منحصر به‌فردتان گردهم آمده است.
             </p>
+            {/* Secure Luxury Minimalist Logout Action Trigger Button */}
+            <form action={handleSignOutAction} className="shrink-0 z-20">
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 px-4 py-2 border border-red-500/20 bg-red-500/[0.03] text-red-600 hover:bg-red-500/[0.08] transition duration-200 rounded-xl text-xs font-bold cursor-pointer select-none active:scale-[0.98]"
+              >
+                <IoLogOutOutline className="w-4 h-4 rotate-180" />
+                <span>خروج از حساب کاربری</span>
+              </button>
+            </form>
           </div>
         </section>
 
         {/* ───────── METRIC CARDS STRIP ───────── */}
         <section className="grid gap-4 md:grid-cols-3">
-          {/* Orders Metric */}
-          <div className="relative overflow-hidden shadow rounded-2xl border border-secondary/60 bg-secondary/20 p-5 md:p-6 backdrop-blur-sm flex justify-between items-center">
+          {/* Orders Metric Card -> Link Target directly adjusted to /dashboard/orders */}
+          <Link
+            href="/dashboard/orders"
+            className="group relative overflow-hidden shadow rounded-2xl border border-secondary/60 bg-secondary/20 p-5 md:p-6 backdrop-blur-sm flex justify-between items-center transition hover:border-accent/40"
+          >
             <div className="space-y-2">
-              <p className="text-xs font-bold text-neutral-400">
-                بایگانی سفارشات گالری
+              <p className="text-xs font-bold text-neutral-400 group-hover:text-primary transition-colors">
+                بایگانی سفارشات گالری ←
               </p>
               <div className="flex items-baseline gap-1">
                 <p className="text-2xl md:text-3xl font-black text-primary">
@@ -163,16 +195,19 @@ export default async function DashboardPage() {
                 </span>
               </div>
             </div>
-            <div className="p-3 rounded-xl bg-background border border-secondary/40 shadow-xs">
+            <div className="p-3 rounded-xl bg-background border border-secondary/40 shadow-xs group-hover:border-accent/30 transition-all">
               <FiShoppingBag className="w-5 h-5 text-accent" />
             </div>
-          </div>
+          </Link>
 
-          {/* Cart Metric */}
-          <div className="relative overflow-hidden shadow rounded-2xl border border-secondary/60 bg-secondary/20 p-5 md:p-6 backdrop-blur-sm flex justify-between items-center">
+          {/* Cart Metric Card -> Link Target to /cart */}
+          <Link
+            href="/cart"
+            className="group relative overflow-hidden shadow rounded-2xl border border-secondary/60 bg-secondary/20 p-5 md:p-6 backdrop-blur-sm flex justify-between items-center hover:border-accent/40 hover:bg-secondary/30 transition-all duration-300 cursor-pointer"
+          >
             <div className="space-y-2">
-              <p className="text-xs font-bold text-neutral-400">
-                سبد خرید در جریان
+              <p className="text-xs font-bold text-neutral-400 group-hover:text-primary transition-colors">
+                سبد خرید در جریان ←
               </p>
               <div className="flex items-baseline gap-1">
                 <p className="text-2xl md:text-3xl font-black text-primary">
@@ -183,12 +218,12 @@ export default async function DashboardPage() {
                 </span>
               </div>
             </div>
-            <div className="p-3 rounded-xl bg-background border border-secondary/40 shadow-xs">
+            <div className="p-3 rounded-xl bg-background border border-secondary/40 shadow-xs group-hover:border-accent/30 transition-all">
               <IoBagHandleOutline className="w-5 h-5 text-accent" />
             </div>
-          </div>
+          </Link>
 
-          {/* Role Metric */}
+          {/* Role Metric (Non-clickable instance) */}
           <div className="relative overflow-hidden shadow rounded-2xl border border-secondary/60 bg-secondary/20 p-5 md:p-6 backdrop-blur-sm flex justify-between items-center">
             <div className="space-y-2">
               <p className="text-xs font-bold text-neutral-400">
@@ -210,11 +245,21 @@ export default async function DashboardPage() {
         <div className="grid gap-10 lg:grid-cols-12 items-start">
           {/* LEFT: CART ITEMS */}
           <section className="lg:col-span-7 space-y-4">
-            <div className="flex items-center gap-2 border-b border-foreground/10 pb-3">
-              <IoBagHandleOutline className="w-4 h-4 text-accent" />
-              <h2 className="text-xs uppercase tracking-wider font-bold text-neutral-500">
-                سبد خرید جاری (اقلام صندوقچه)
-              </h2>
+            <div className="flex items-center justify-between border-b border-foreground/10 pb-3">
+              <div className="flex items-center gap-2">
+                <IoBagHandleOutline className="w-4 h-4 text-accent" />
+                <h2 className="text-xs uppercase tracking-wider font-bold text-neutral-500">
+                  سبد خرید جاری (اقلام صندوقچه)
+                </h2>
+              </div>
+
+              <Link
+                href="/cart"
+                className="text-[10px] font-bold border border-secondary/80 bg-secondary/10 text-accent rounded-lg px-3 py-1 hover:bg-secondary/30 hover:text-primary transition-all flex items-center gap-1"
+              >
+                <span>مدیریت سبد خرید</span>
+                <IoArrowForwardOutline className="w-3 h-3 rotate-180" />
+              </Link>
             </div>
 
             <div className="space-y-3">
@@ -332,11 +377,22 @@ export default async function DashboardPage() {
 
         {/* ───────── ORDERS ARCHIVE ───────── */}
         <section className="space-y-4 pt-4">
-          <div className="flex items-center gap-2 border-b border-secondary/60 pb-3">
-            <IoGridOutline className="w-4 h-4 text-accent" />
-            <h2 className="text-xs uppercase tracking-wider font-bold text-neutral-500">
-              سوابق مرسولات و سفارشات گذشته
-            </h2>
+          <div className="flex items-center justify-between border-b border-secondary/60 pb-3">
+            <div className="flex items-center gap-2">
+              <IoGridOutline className="w-4 h-4 text-accent" />
+              <h2 className="text-xs uppercase tracking-wider font-bold text-neutral-500">
+                سوابق مرسولات و سفارشات گذشته
+              </h2>
+            </div>
+
+            {/* Premium Luxury Sub-header Anchor Button to dashboard/orders */}
+            <Link
+              href="/dashboard/orders"
+              className="text-[10px] font-bold border border-secondary/80 bg-secondary/10 text-accent rounded-lg px-3 py-1 hover:bg-secondary/30 hover:text-primary transition-all flex items-center gap-1"
+            >
+              <span>مشاهده و پیگیری تمام مرسولات</span>
+              <IoChevronBackOutline className="w-3.5 h-3.5 transition duration-200 transform group-hover:-translate-x-1" />
+            </Link>
           </div>
 
           <div className="space-y-3">
@@ -358,7 +414,7 @@ export default async function DashboardPage() {
                   >
                     <div className="space-y-2">
                       <p className="font-bold text-xs tracking-wider text-primary">
-                        کد مرسوله: #{o.id.slice(0, 8).toUpperCase()}
+                        کد مرسوله: #{o.id.toUpperCase()}
                       </p>
                       <div
                         className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold border ${mappedStatus.color}`}

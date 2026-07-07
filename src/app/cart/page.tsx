@@ -59,7 +59,7 @@ export default async function PublicCartPage() {
   return (
     <div
       dir="rtl"
-      className="min-h-screen bg-background text-primary p-6 md:p-12 antialiased selection:bg-accent selection:text-primary"
+      className="min-h-screen bg-background text-primary p-6 md:p-20 antialiased selection:bg-accent selection:text-primary"
     >
       <div className="max-w-6xl mx-auto">
         {/* Hand the clean database array to the specialized Zustand interactive matrix wrapper */}

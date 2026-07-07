@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   IoTrashOutline,
   IoAddOutline,
@@ -11,6 +12,7 @@ import {
   IoCheckmarkCircleOutline,
 } from "react-icons/io5";
 import { updateCartQuantity, removeFromCart } from "@/app/cart/actions";
+import { createCashOnDeliveryOrder } from "@/app/actions/order"; // Our order creation action
 import { useCheckoutStore } from "./useCheckoutStore";
 
 // Luxury Storefront Geographic Iran Dataset Map
@@ -41,14 +43,18 @@ type Props = {
 };
 
 export default function CartPageClient({ initialItems, userId }: Props) {
+  const router = useRouter();
   const [items, setItems] = useState<CartItem[]>(initialItems);
   const [isPending, startTransition] = useTransition();
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Pulling step indicators and buffered logistics data cleanly from Zustand memory
   const currentStep = useCheckoutStore((state) => state.currentStep);
   const setStep = useCheckoutStore((state) => state.setStep);
   const shipping = useCheckoutStore((state) => state.shipping);
   const updateShipping = useCheckoutStore((state) => state.updateShipping);
+  const resetCheckout = useCheckoutStore((state) => state.resetCheckout);
 
   React.useEffect(() => {
     setItems(initialItems);
@@ -85,13 +91,64 @@ export default function CartPageClient({ initialItems, userId }: Props) {
     });
   };
 
+  // Submit flow handling for Cash on Delivery
+  const handleFinalOrderSubmit = async () => {
+    setErrorMessage("");
+
+    // Simple validation guard clauses
+    if (
+      !shipping.fullName ||
+      !shipping.phone ||
+      !shipping.province ||
+      !shipping.city ||
+      !shipping.address ||
+      !shipping.zipCode
+    ) {
+      setErrorMessage("تکمیل تمام فیلدهای اطلاعات ارسال الزامی است.");
+      setStep("shipping");
+      return;
+    }
+
+    setOrderLoading(true);
+
+    const formattedCartItems = items.map((i) => ({
+      id: i.productId ?? "",
+      name: i.name,
+      brand: i.brand,
+      image: i.image ?? "",
+      volumeMl: null, // Fallback if not populated on item layout schemas yet
+      price: i.price,
+      quantity: i.quantity,
+    }));
+
+    const result = await createCashOnDeliveryOrder({
+      customerName: shipping.fullName,
+      customerPhone: shipping.phone,
+      province: shipping.province,
+      city: shipping.city,
+      shippingAddress: shipping.address,
+      postalCode: shipping.zipCode,
+      cartItems: formattedCartItems,
+    });
+
+    setOrderLoading(false);
+
+    if (result.success) {
+      resetCheckout(); // Wipes Zustand form memory
+      setItems([]); // Local client state update
+      router.push(`/checkout/success?id=${result.orderId}`); // Take them directly to a premium receipt route
+    } else {
+      setErrorMessage(result.error ?? "خطایی رخ داد.");
+    }
+  };
+
   return (
     <div className="space-y-8">
-      {/* Stepper Progress Bar Timeline Header (Triggering Zustand layout adjustments) */}
+      {/* Stepper Progress Bar Timeline Header */}
       <div className="border-b border-accent/20 pb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            صورت‌حساب و خروج از گالری
+            سبد خرید فعال شما
           </h1>
           <p className="text-xs text-primary/60 mt-1">
             مدیریت و نهایی‌سازی گام‌به‌گام محموله سفارشی ROYAL
@@ -119,7 +176,7 @@ export default function CartPageClient({ initialItems, userId }: Props) {
             onClick={() => setStep("payment")}
             className={`px-3 py-1.5 rounded-lg border transition-all ${items.length === 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${currentStep === "payment" ? "bg-primary text-background border-primary" : "bg-secondary/40 border-accent/10 text-primary/60"}`}
           >
-            ۰۳. پرداخت نهایی
+            ۰۳. پرداخت و تایید
           </button>
         </div>
       </div>
@@ -128,6 +185,13 @@ export default function CartPageClient({ initialItems, userId }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* RIGHT COLUMN: CONTENT INPUT CHASSIS */}
         <div className="lg:col-span-8 space-y-4">
+          {/* Global error feedback pane */}
+          {errorMessage && (
+            <div className="p-4 bg-red-50 border border-red-200 text-red-800 text-xs rounded-xl font-medium">
+              {errorMessage}
+            </div>
+          )}
+
           {/* STEP 1: CART RECONCILIATION WINDOW */}
           {currentStep === "review" && (
             <div className="space-y-4">
@@ -172,7 +236,7 @@ export default function CartPageClient({ initialItems, userId }: Props) {
                     <div className="flex flex-col items-end justify-between h-20">
                       <div className="flex items-center border border-accent/20 rounded-md bg-background overflow-hidden">
                         <button
-                          disabled={isPending}
+                          disabled={isPending || orderLoading}
                           onClick={() =>
                             handleQtyAdjust(item.id, item.quantity, -1)
                           }
@@ -184,7 +248,7 @@ export default function CartPageClient({ initialItems, userId }: Props) {
                           {item.quantity.toLocaleString("fa-IR")}
                         </span>
                         <button
-                          disabled={isPending}
+                          disabled={isPending || orderLoading}
                           onClick={() =>
                             handleQtyAdjust(item.id, item.quantity, 1)
                           }
@@ -195,7 +259,7 @@ export default function CartPageClient({ initialItems, userId }: Props) {
                       </div>
 
                       <button
-                        disabled={isPending}
+                        disabled={isPending || orderLoading}
                         onClick={() => handleItemRemoval(item.id)}
                         className="text-primary/40 hover:text-red-700 p-1 transition-colors cursor-pointer disabled:opacity-40"
                       >
@@ -208,7 +272,7 @@ export default function CartPageClient({ initialItems, userId }: Props) {
             </div>
           )}
 
-          {/* STEP 2: SHIPPING LOGISTICS (FULLY CONTROLLED BY ZUSTAND INSTANTLY) */}
+          {/* STEP 2: SHIPPING LOGISTICS */}
           {currentStep === "shipping" && (
             <div className="bg-secondary/10 border border-accent/10 rounded-2xl p-6 space-y-6">
               <div className="flex items-center gap-2 border-b border-accent/10 pb-3">
@@ -248,7 +312,6 @@ export default function CartPageClient({ initialItems, userId }: Props) {
                   />
                 </div>
 
-                {/* CASCADE SELECT STEP 1: PROVINCES (OSTAN) */}
                 <div className="space-y-1.5">
                   <label className="text-[11px] text-primary/60 font-medium">
                     استان
@@ -269,7 +332,6 @@ export default function CartPageClient({ initialItems, userId }: Props) {
                   </select>
                 </div>
 
-                {/* CASCADE SELECT STEP 2: CASCADING MULTI-CITY REGION BLOCK */}
                 <div className="space-y-1.5">
                   <label className="text-[11px] text-primary/60 font-medium">
                     شهر
@@ -324,13 +386,13 @@ export default function CartPageClient({ initialItems, userId }: Props) {
             </div>
           )}
 
-          {/* STEP 3: DRAHGAH PAYMENT GATEWAY MATRIX */}
+          {/* STEP 3: CASH ON DELIVERY METHOD VIEW */}
           {currentStep === "payment" && (
             <div className="bg-secondary/10 border border-accent/10 rounded-2xl p-6 space-y-6">
               <div className="flex items-center gap-2 border-b border-accent/10 pb-3">
                 <IoCardOutline className="w-5 h-5 text-accent" />
                 <h2 className="text-sm font-medium">
-                  انتخاب درگاه امن بانکی برای تسویه حساب
+                  انتخاب شیوه پرداخت و تسویه حساب ملوکانه
                 </h2>
               </div>
               <div className="space-y-3">
@@ -342,12 +404,18 @@ export default function CartPageClient({ initialItems, userId }: Props) {
                       defaultChecked
                       className="accent-primary"
                     />
-                    <span className="text-xs font-medium">
-                      درگاه پرداخت الکترونیک زرین‌پال (شتاب شبکه)
-                    </span>
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-semibold block text-primary">
+                        پرداخت درب منزل (Cash on Delivery)
+                      </span>
+                      <span className="text-[11px] text-muted-foreground block">
+                        تسویه حساب وجه نهایی پس از تحویل، رویت و تایید اصالت
+                        فیزیکی عطر
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-[10px] bg-secondary px-2 py-0.5 rounded-sm text-primary/60">
-                    پیشنهادی
+                  <span className="text-[10px] bg-accent/10 px-2 py-0.5 rounded-sm text-accent font-bold">
+                    فعال
                   </span>
                 </label>
               </div>
@@ -355,7 +423,7 @@ export default function CartPageClient({ initialItems, userId }: Props) {
           )}
         </div>
 
-        {/* LEFT COLUMN: EDITORIAL TOTAL RECEIPT PANEL */}
+        {/* LEFT COLUMN: RECEIPT TOTAL DETAILS */}
         {items.length > 0 && (
           <div className="lg:col-span-4 bg-secondary/30 border border-accent/20 rounded-2xl p-6 lg:sticky lg:top-8 space-y-6">
             <h2 className="text-sm font-medium border-b border-accent/10 pb-3">
@@ -380,7 +448,7 @@ export default function CartPageClient({ initialItems, userId }: Props) {
               </div>
             </div>
 
-            {/* Zustand Step Modifiers with instant non-blocking processing navigation triggers */}
+            {/* Step triggers with mutation actions hooked smoothly */}
             {currentStep === "review" && (
               <button
                 onClick={() => setStep("shipping")}
@@ -394,13 +462,19 @@ export default function CartPageClient({ initialItems, userId }: Props) {
                 onClick={() => setStep("payment")}
                 className="w-full py-3 bg-primary text-background text-xs font-medium rounded-xl hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer"
               >
-                ثبت اطلاعات و رفتن به درگاه پرداخت
+                ثبت اطلاعات و رفتن به مرحله تایید سفارش
               </button>
             )}
             {currentStep === "payment" && (
-              <button className="w-full py-3 bg-primary text-background text-xs font-medium rounded-xl hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer gap-2">
+              <button
+                onClick={handleFinalOrderSubmit}
+                disabled={orderLoading}
+                className="w-full py-3 bg-primary text-background text-xs font-bold rounded-xl hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer gap-2 disabled:opacity-50"
+              >
                 <IoCheckmarkCircleOutline className="w-4 h-4" />
-                اتصال نهایی به درگاه شاپرک و تسویه
+                {orderLoading
+                  ? "در حال ثبت نهایی..."
+                  : "تایید نهایی و ثبت پرداخت در محل"}
               </button>
             )}
           </div>

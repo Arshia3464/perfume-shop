@@ -23,7 +23,7 @@ export default async function RootLayout({
   });
   return (
     <html lang="fa" dir="rtl">
-      <body className="font-sans pt-20 antialiased">
+      <body className="font-sans pt-0 antialiased">
         <Navbar user={session?.user ?? null} />
         {children}
         <Footer />

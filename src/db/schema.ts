@@ -96,17 +96,35 @@ export const wishlistItem = pgTable("wishlist_item", {
 export const order = pgTable("order", {
   id: text("id").primaryKey(),
   userId: text("user_id").notNull(),
-  total: integer("total").notNull(),
-  status: text("status").notNull().default("pending"), // pending | paid | shipped | delivered
+  total: integer("total").notNull(), // This matches your existing column structure
+  status: text("status").notNull().default("processing"), // We can default to processing for COD
+
+  // New High-Value Delivery Logistics Properties (Nullable for safety)
+  customerName: text("customer_name"),
+  customerPhone: text("customer_phone"),
+  province: text("province"), // استان
+  city: text("city"),
+  shippingAddress: text("shipping_address"),
+  postalCode: text("postal_code"),
+
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
 });
 
 export const orderItem = pgTable("order_item", {
   id: text("id").primaryKey(),
   orderId: text("order_id").notNull(),
-  productId: text("product_id").notNull(),
+
+  // We remove the foreign key reference block constraint here
+  // so you can execute hard-deletes on products safely without crashing past order charts
+  productId: text("product_id"),
   quantity: integer("quantity").notNull(),
   priceAtPurchase: integer("price_at_purchase").notNull(),
+
+  // Real-world historic snapshot text fallbacks
+  snapshotName: text("snapshot_name"),
+  snapshotBrand: text("snapshot_brand"),
+  snapshotImage: text("snapshot_image"),
+  snapshotVolumeMl: integer("snapshot_volume_ml"),
 });
 
 export const sliderItem = pgTable("slider_item", {

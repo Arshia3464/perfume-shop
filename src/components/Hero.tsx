@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { HiArrowNarrowLeft, HiArrowNarrowRight } from "react-icons/hi";
@@ -40,7 +40,7 @@ export default function Hero({ sliders }: HeroProps) {
   return (
     <section
       dir="rtl"
-      className="relative overflow-hidden bg-background min-h-[100svh]"
+      className="relative overflow-hidden bg-background min-h-[100svh] w-full flex items-center justify-center"
     >
       {/* ── Ambient background orbs ───────────────────────────────────────── */}
       <div
@@ -56,25 +56,25 @@ export default function Hero({ sliders }: HeroProps) {
             transition={{ duration: 1.2 }}
             className="absolute inset-0"
           >
-            <div className="absolute top-[-10%] right-[-5%] h-[600px] w-[600px] rounded-full bg-foreground/[0.03] blur-3xl" />
-            <div className="absolute bottom-[-10%] left-[10%] h-[400px] w-[400px] rounded-full bg-foreground/[0.025] blur-3xl" />
+            <div className="absolute top-[-10%] right-[-5%] h-[400px] w-[400px] md:h-[600px] md:w-[600px] rounded-full bg-foreground/[0.02] blur-3xl" />
+            <div className="absolute bottom-[-10%] left-[10%] h-[300px] w-[300px] md:h-[400px] md:w-[400px] rounded-full bg-foreground/[0.02] blur-3xl" />
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* ── Ghost slide number ────────────────────────────────────────────── */}
+      {/* ── Ghost slide number (Hidden completely on smaller phones to look cleaner) ── */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 flex items-center justify-end pr-[6%]"
+        className="pointer-events-none absolute inset-0 hidden sm:flex items-center justify-end pr-[6%]"
       >
         <AnimatePresence mode="wait">
           <motion.span
             key={`num-${current}`}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="select-none text-[22rem] font-black leading-none text-foreground/[0.085] lg:text-[28rem]"
+            className="select-none text-[16rem] md:text-[22rem] lg:text-[28rem] font-black leading-none text-foreground/[0.04] lg:text-[0.085]"
           >
             {String(current + 1).padStart(2, "0")}
           </motion.span>
@@ -85,7 +85,7 @@ export default function Hero({ sliders }: HeroProps) {
       <div className="absolute bottom-0 right-0 left-0 z-20 h-px bg-border">
         <motion.div
           key={`progress-${current}`}
-          className="h-full bg-foreground/40"
+          className="h-full bg-foreground/30"
           initial={{ scaleX: 0, originX: 1 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 6, ease: "linear" }}
@@ -100,113 +100,77 @@ export default function Hero({ sliders }: HeroProps) {
         <span className="block h-16 w-px bg-border" />
       </div>
 
-      {/* ── Main grid ────────────────────────────────────────────────────── */}
-      <div className="container mx-auto px-6 lg:px-12 text-foreground">
-        <div className="grid min-h-[100svh] items-center gap-8 lg:grid-cols-[1fr_1fr] lg:gap-0">
-          {/* CONTENT ─────────────────────────────────────────────────────── */}
-          <div className="relative z-10 flex flex-col justify-center pt-24 pb-16 lg:py-0">
-            {/* Eyebrow */}
+      {/* ── Main Layout Wrapper ────────────────────────────────────────── */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-12 text-foreground w-full relative z-10">
+        <div className="grid min-h-[100svh] items-center gap-6 pt-20 pb-10 lg:grid-cols-[1fr_1fr] lg:gap-0 lg:pt-0 lg:pb-0">
+          {/* CONTENT COL (Blink-Free layout containment) ───────────────────── */}
+          <div className="flex flex-col justify-center order-2 lg:order-1 lg:h-full max-w-xl mx-auto lg:mx-0 w-full">
+            {/* Unified Animation Frame to avoid multi-element jerking layout resets */}
             <AnimatePresence mode="wait">
               <motion.div
-                key={`eyebrow-${slide.id}`}
-                initial={{ opacity: 0, x: 20 }}
+                key={`slide-content-${slide.id}`}
+                initial={{ opacity: 0, x: 15 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="mb-6 flex items-center gap-3"
+                exit={{ opacity: 0, x: -15 }}
+                transition={{ duration: 0.45, ease: [0.25, 1, 0.5, 1] }}
+                className="w-full flex flex-col items-center text-center lg:items-start lg:text-right"
               >
-                <span className="block h-px w-8 bg-muted-foreground/40" />
-                <span className="text-xs tracking-[0.35em] text-muted-foreground">
-                  کلکسیون ویژه
-                </span>
+                {/* Eyebrow */}
+                <div className="mb-4 flex items-center gap-3 justify-center lg:justify-start">
+                  <span className="hidden lg:block h-px w-8 bg-muted-foreground/40" />
+                  <span className="text-[10px] md:text-xs tracking-[0.35em] uppercase text-muted-foreground font-medium">
+                    کلکسیون ویژه رویال
+                  </span>
+                </div>
+
+                {/* Headline (Min height container locks layout shifting) */}
+                <h1 className="mb-4 text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black leading-[1.25] tracking-tight text-foreground min-h-[2.5em] lg:min-h-[auto] flex items-center justify-center lg:justify-start">
+                  {slide.text}
+                </h1>
+
+                {/* Body Text */}
+                <p className="mb-8 max-w-sm text-xs sm:text-sm md:text-base leading-7 md:leading-8 text-muted-foreground lg:text-foreground">
+                  مجموعه‌ای از بهترین عطرها و دکانت‌های خاص برای کسانی که به
+                  دنبال امضای شخصی رایحه خود هستند.
+                </p>
+
+                {/* Call To Actions */}
+                <div className="flex items-center gap-4 justify-center lg:justify-start w-full sm:w-auto">
+                  <button className="rounded-full bg-foreground px-6 sm:px-8 py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-background transition-transform hover:scale-105 active:scale-100 shadow-sm cursor-pointer">
+                    مشاهده محصول
+                  </button>
+                  <button className="group flex items-center gap-2.5 text-xs sm:text-sm font-medium text-muted-foreground transition hover:text-foreground cursor-pointer">
+                    <span>اطلاعات بیشتر</span>
+                    <span className="block h-px w-4 bg-current transition-all duration-300 group-hover:w-8" />
+                  </button>
+                </div>
               </motion.div>
             </AnimatePresence>
 
-            {/* Headline */}
-            <AnimatePresence mode="wait">
-              <motion.h1
-                key={`headline-${slide.id}`}
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 }}
-                transition={{
-                  duration: 0.6,
-                  delay: 0.08,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="mb-6 text-5xl font-extrabold leading-[1.2] tracking-tight lg:text-7xl"
-              >
-                {slide.text}
-              </motion.h1>
-            </AnimatePresence>
-
-            {/* Body */}
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={`body-${slide.id}`}
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -30 }}
-                transition={{
-                  duration: 0.55,
-                  delay: 0.18,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="mb-10 max-w-sm text-base leading-8 text-foreground"
-              >
-                مجموعه‌ای از بهترین عطرها و دکانت‌های خاص برای کسانی که به دنبال
-                امضای شخصی رایحه خود هستند.
-              </motion.p>
-            </AnimatePresence>
-
-            {/* CTAs */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`cta-${slide.id}`}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{
-                  duration: 0.5,
-                  delay: 0.26,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="flex flex-wrap items-center gap-4"
-              >
-                <button className="rounded-full bg-foreground px-8 py-3 text-sm font-medium text-background transition-transform hover:scale-105 active:scale-100">
-                  مشاهده محصول
-                </button>
-                <button className="group flex items-center gap-3 text-sm font-medium text-muted-foreground transition hover:text-foreground">
-                  <span>اطلاعات بیشتر</span>
-                  <span className="block h-px w-6 bg-current transition-all duration-300 group-hover:w-10" />
-                </button>
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Controls */}
-            <div className="mt-16 flex items-center gap-6">
+            {/* Navigation Controls Component Container */}
+            <div className="mt-10 sm:mt-12 lg:mt-16 flex items-center justify-center lg:justify-start gap-5 w-full">
               <button
                 onClick={prevSlide}
                 aria-label="اسلاید قبلی"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:border-foreground hover:text-foreground"
+                className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:border-foreground hover:text-foreground active:scale-95 cursor-pointer"
               >
-                <HiArrowNarrowRight size={18} />
+                <HiArrowNarrowRight size={16} />
               </button>
 
-              {/* Dot indicators */}
-              <div className="flex items-center gap-2">
+              {/* Dot Indicators */}
+              <div className="flex items-center gap-1.5">
                 {sliders.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setCurrent(i)}
                     aria-label={`اسلاید ${i + 1}`}
-                    className="relative flex h-4 w-4 items-center justify-center"
+                    className="relative flex h-3 w-3 items-center justify-center cursor-pointer"
                   >
                     <span
                       className={`block rounded-full transition-all duration-300 ${
                         i === current
-                          ? "h-2 w-2 bg-foreground"
-                          : "h-1.5 w-1.5 bg-muted-foreground/40"
+                          ? "h-1.5 w-1.5 bg-foreground"
+                          : "h-1 w-1 bg-muted-foreground/30"
                       }`}
                     />
                   </button>
@@ -216,45 +180,34 @@ export default function Hero({ sliders }: HeroProps) {
               <button
                 onClick={nextSlide}
                 aria-label="اسلاید بعدی"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:border-foreground hover:text-foreground"
+                className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:border-foreground hover:text-foreground active:scale-95 cursor-pointer"
               >
-                <HiArrowNarrowLeft size={18} />
+                <HiArrowNarrowLeft size={16} />
               </button>
 
-              {/* Counter */}
-              <span className="mr-auto text-xs tracking-[0.25em] text-muted-foreground">
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={current}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.25 }}
-                    className="inline-block"
-                  >
-                    {String(current + 1).padStart(2, "0")}
-                  </motion.span>
-                </AnimatePresence>
-                <span className="mx-1 text-muted-foreground/30">/</span>
+              {/* Counter UI Metrics */}
+              <span className="text-[10px] sm:text-xs tracking-[0.25em] text-muted-foreground font-medium mr-4 sm:mr-6 lg:mr-auto">
+                {String(current + 1).padStart(2, "0")}
+                <span className="mx-1.5 text-muted-foreground/30">/</span>
                 {String(total).padStart(2, "0")}
               </span>
             </div>
           </div>
 
-          {/* IMAGE ───────────────────────────────────────────────────────── */}
-          <div className="relative flex items-center justify-center">
-            {/* Decorative rings */}
+          {/* IMAGE PERFORMANCE STAGE COL ─────────────────────────────── */}
+          <div className="relative flex items-center justify-center order-1 lg:order-2 h-[260px] sm:h-[340px] lg:h-auto">
+            {/* Decorative structural circles (Scaled safely dynamically down on phones) */}
             <div
               aria-hidden
-              className="absolute h-[420px] w-[420px] rounded-full border border-border/30 lg:h-[560px] lg:w-[560px]"
+              className="absolute h-[240px] w-[240px] sm:h-[340px] sm:w-[340px] lg:h-[560px] lg:w-[560px] rounded-full border border-border/20"
             />
             <div
               aria-hidden
-              className="absolute h-[320px] w-[320px] rounded-full border border-border/20 lg:h-[440px] lg:w-[440px]"
+              className="absolute h-[180px] w-[180px] sm:h-[260px] sm:w-[260px] lg:h-[440px] lg:w-[440px] rounded-full border border-border/10"
             />
 
-            {/* Fixed-size stage — never changes size, images crossfade inside */}
-            <div className="relative z-10 h-[360px] w-[360px] lg:h-[500px] lg:w-[500px]">
+            {/* Stage bounds mapping */}
+            <div className="relative z-10 h-[220px] w-[220px] sm:h-[300px] sm:w-[300px] lg:h-[500px] lg:w-[500px]">
               {sliders.map((s, i) => (
                 <motion.div
                   key={s.id}
@@ -262,7 +215,7 @@ export default function Hero({ sliders }: HeroProps) {
                     opacity: i === current ? 1 : 0,
                     scale: i === current ? 1 : 0.96,
                   }}
-                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.55, ease: [0.25, 1, 0.5, 1] }}
                   className="absolute inset-0"
                 >
                   {s.image ? (
@@ -271,40 +224,36 @@ export default function Hero({ sliders }: HeroProps) {
                       alt={s.text ?? ""}
                       fill
                       priority={i === 0}
-                      className="object-contain drop-shadow-2xl"
+                      className="object-contain drop-shadow-2xl select-none pointer-events-none"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="flex flex-col items-center opacity-10">
-                        <div className="h-4 w-8 rounded-t-full bg-foreground" />
-                        <div className="h-3 w-14 bg-foreground" />
-                        <div className="h-64 w-36 rounded-b-2xl rounded-t-sm bg-foreground" />
-                      </div>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-5">
+                      <div className="w-12 h-20 bg-foreground rounded-lg" />
                     </div>
                   )}
                 </motion.div>
               ))}
             </div>
 
-            {/* Floating label card */}
+            {/* Premium Floating Context Label (Hidden completely below desktop thresholds) */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={`card-${slide.id}`}
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="absolute bottom-12 left-4 z-20 hidden lg:block"
+                exit={{ opacity: 0, y: 6 }}
+                transition={{ duration: 0.35 }}
+                className="absolute bottom-6 left-2 z-20 hidden lg:block"
               >
-                <div className="rounded-2xl border border-border bg-background/80 px-5 py-4 backdrop-blur-md shadow-sm">
-                  <p className="mb-0.5 text-[0.65rem] tracking-[0.25em] text-muted-foreground">
+                <div className="rounded-2xl border border-border bg-background/70 px-5 py-4 backdrop-blur-md shadow-xs">
+                  <p className="mb-0.5 text-[0.65rem] tracking-[0.25em] text-muted-foreground uppercase font-medium">
                     دسته‌بندی
                   </p>
                   <p className="text-sm font-semibold">{slide.text}</p>
-                  <div className="mt-3 flex items-center gap-2">
+                  <div className="mt-2.5 flex items-center gap-2">
                     <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
                     <span className="text-xs text-muted-foreground">
-                      موجود در انبار
+                      اصالت تضمین شده
                     </span>
                   </div>
                 </div>
