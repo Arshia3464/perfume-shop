@@ -79,7 +79,7 @@ export default async function ProductsPage() {
                   <div className="relative aspect-[4/3] w-full overflow-hidden bg-secondary/20 border-b border-secondary/40 flex items-center justify-center">
                     {p.image ? (
                       <img
-                        src={p.image}
+                        src={`${process.env.MINIO_ENDPOINT}/${p.image}`}
                         alt={p.name}
                         className="h-4/5 w-4/5 object-contain p-4 transition duration-500 group-hover:scale-105 filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.05)]"
                       />

@@ -16,9 +16,10 @@ type SliderItem = {
 
 interface HeroProps {
   sliders: SliderItem[];
+  BASE_URL: string | undefined;
 }
 
-export default function Hero({ sliders }: HeroProps) {
+export default function Hero({ sliders, BASE_URL }: HeroProps) {
   const [current, setCurrent] = useState(0);
   const total = sliders.length;
 
@@ -220,7 +221,7 @@ export default function Hero({ sliders }: HeroProps) {
                 >
                   {s.image ? (
                     <Image
-                      src={s.image}
+                      src={`${BASE_URL}/${s.image}`}
                       alt={s.text ?? ""}
                       fill
                       priority={i === 0}

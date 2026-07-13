@@ -12,5 +12,10 @@ export default async function AdminProductsPage() {
     updatedAt: p.updatedAt ? p.updatedAt.toISOString() : null,
   }));
 
-  return <ProductsClient initialProducts={serializedProducts} />;
+  return (
+    <ProductsClient
+      BASE_URL={process.env.MINIO_ENDPOINT}
+      initialProducts={serializedProducts}
+    />
+  );
 }

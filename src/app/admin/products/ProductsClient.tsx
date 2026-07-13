@@ -29,13 +29,17 @@ type Product = {
 
 export default function ProductsClient({
   initialProducts,
+  BASE_URL,
 }: {
   initialProducts: Product[];
+  BASE_URL: string | undefined;
 }) {
   const [products] = useState(initialProducts);
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [selected, setSelected] = useState<Product | null>(null);
+
+  console.log(products);
 
   const filtered = useMemo(() => {
     return products.filter(
@@ -101,7 +105,7 @@ export default function ProductsClient({
               <div className="aspect-[4/5] bg-[var(--secondary)]/30 overflow-hidden relative border-b border-[var(--accent)]/10">
                 {p.image ? (
                   <img
-                    src={p.image}
+                    src={`${BASE_URL}/${p.image}`}
                     alt={p.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
@@ -156,7 +160,10 @@ export default function ProductsClient({
         {/* ADD PRODUCT MODAL */}
         {addOpen && (
           <Modal key="add-modal" onClose={() => setAddOpen(false)}>
-            <AddProductForm onClose={() => setAddOpen(false)} />
+            <AddProductForm
+              BASE_URL={BASE_URL}
+              onClose={() => setAddOpen(false)}
+            />
           </Modal>
         )}
 
@@ -166,6 +173,7 @@ export default function ProductsClient({
             <EditProductForm
               product={selected}
               onClose={() => setSelected(null)}
+              BASE_URL={BASE_URL}
             />
           </Modal>
         )}
@@ -211,7 +219,13 @@ function Modal({
 }
 
 /* ───── INTERNAL ADD PRODUCT FORM ───── */
-function AddProductForm({ onClose }: { onClose: () => void }) {
+function AddProductForm({
+  onClose,
+  BASE_URL,
+}: {
+  onClose: () => void;
+  BASE_URL: string | undefined;
+}) {
   const [gender, setGender] = useState("unisex");
   const [season, setSeason] = useState("spring");
   // Holds local URL object string purely for visual dashboard previews
@@ -398,7 +412,7 @@ function AddProductForm({ onClose }: { onClose: () => void }) {
           </label>
           {preview && (
             <img
-              src={preview}
+              src={`${preview}`}
               alt="Preview"
               className="w-12 h-12 object-cover rounded-lg border border-[var(--accent)]/20 shadow-sm"
             />
@@ -421,8 +435,10 @@ function AddProductForm({ onClose }: { onClose: () => void }) {
 function EditProductForm({
   product,
   onClose,
+  BASE_URL,
 }: {
   product: Product;
+  BASE_URL: string | undefined;
   onClose: () => void;
 }) {
   const [gender, setGender] = useState(product.gender || "unisex");
@@ -611,7 +627,7 @@ function EditProductForm({
           </label>
           {preview && (
             <img
-              src={preview}
+              src={`${BASE_URL}/${preview}`}
               alt="Preview"
               className="w-12 h-12 object-cover rounded-lg border border-[var(--accent)]/20 shadow-sm"
             />

@@ -66,7 +66,13 @@ function splitDescription(text: string | null) {
   };
 }
 
-export default function ProductClient({ item }: { item: Product }) {
+export default function ProductClient({
+  item,
+  BASE_URL,
+}: {
+  item: Product;
+  BASE_URL: string | undefined;
+}) {
   const [loading, setLoading] = useState(false);
   const [wishLoading, setWishLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -152,7 +158,7 @@ export default function ProductClient({ item }: { item: Product }) {
                 <motion.img
                   whileHover={{ scale: 1.03 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
-                  src={item.image}
+                  src={`${BASE_URL}/${item.image}`}
                   alt={item.name}
                   className="z-10 h-4/5 w-4/5 object-contain filter drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)]"
                 />

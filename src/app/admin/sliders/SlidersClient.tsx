@@ -52,9 +52,11 @@ const defaultForm: SliderFormState = {
 export default function SlidersClient({
   Sliders,
   Products,
+  BASE_URL,
 }: {
   Sliders: Slider[];
   Products: Product[];
+  BASE_URL: string | undefined;
 }) {
   const [editing, setEditing] = useState<Slider | null>(null);
   const [open, setOpen] = useState(false);
@@ -181,7 +183,7 @@ export default function SlidersClient({
                 >
                   {s.image ? (
                     <img
-                      src={s.image}
+                      src={`${BASE_URL}/${s.image}`}
                       alt={s.text || "Banner"}
                       className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                     />
@@ -250,6 +252,7 @@ export default function SlidersClient({
               title="تنظیم بنر ویترین جدید"
               subtitle="یک عطر هدف متصل انتخاب کرده و گزاره بیانیه مد را وارد نمایید."
               isSubmitting={isSubmitting}
+              BASE_URL={BASE_URL}
             />
           </Modal>
         )}
@@ -270,6 +273,7 @@ export default function SlidersClient({
               title="اصلاح شناسنامه بنر ویترین"
               subtitle="جایگزینی تصاویر بوم آرشیو، اولویت چینش ردیف و متن نمایشی اسلاید."
               isSubmitting={isSubmitting}
+              BASE_URL={BASE_URL}
             />
           </Modal>
         )}
@@ -323,6 +327,7 @@ type SliderFormProps = {
   title: string;
   subtitle: string;
   isSubmitting: boolean;
+  BASE_URL: string | undefined;
 };
 
 function SliderForm({
@@ -333,6 +338,7 @@ function SliderForm({
   title,
   subtitle,
   isSubmitting,
+  BASE_URL,
 }: SliderFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
@@ -354,7 +360,7 @@ function SliderForm({
     await onSubmit(selectedFile);
   }
 
-  const previewSrc = previewUrl || form.image;
+  const previewSrc = previewUrl || BASE_URL + "/" + form.image;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 text-right antialiased">

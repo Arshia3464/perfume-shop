@@ -25,5 +25,5 @@ export default async function ProductPage({
     );
   }
 
-  return <ProductClient item={item} />;
+  return <ProductClient item={item} BASE_URL={process.env.MINIO_ENDPOINT} />;
 }

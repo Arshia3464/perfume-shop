@@ -22,18 +22,18 @@ const s3Client = new S3Client({
   forcePathStyle: true, // Required for self-hosted MinIO clusters
 });
 
-// Helper function to extract file keys safely from your full URLs
-function getS3KeyFromUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-  // Double check that the asset belongs to our MinIO endpoint before trying to delete
-  const isMinioAsset =
-    url.includes("chbkn.run") ||
-    url.includes("chabokan.net") ||
-    (process.env.MINIO_ENDPOINT && url.includes(process.env.MINIO_ENDPOINT));
-  if (!isMinioAsset) return null;
+// // Helper function to extract file keys safely from your full URLs
+// function getS3KeyFromUrl(url: string | null | undefined): string | null {
+//   if (!url) return null;
+//   // Double check that the asset belongs to our MinIO endpoint before trying to delete
+//   const isMinioAsset =
+//     url.includes("chbkn.run") ||
+//     url.includes("chabokan.net") ||
+//     (process.env.MINIO_ENDPOINT && url.includes(process.env.MINIO_ENDPOINT));
+//   if (!isMinioAsset) return null;
 
-  return url.split("/").pop() || null;
-}
+//   return url.split("/").pop() || null;
+// }
 
 // -------------------- CREATE --------------------
 export async function createSlider(formData: FormData) {
@@ -63,7 +63,7 @@ export async function createSlider(formData: FormData) {
       );
 
       // Construct your permanent static public file URL
-      imageUrl = `${process.env.MINIO_ENDPOINT}/${process.env.MINIO_BUCKET_NAME}/${uniqueFileName}`;
+      imageUrl = `${process.env.MINIO_BUCKET_NAME}/${uniqueFileName}`;
     }
 
     await db.insert(sliderItem).values({
@@ -120,13 +120,13 @@ export async function updateSlider(formData: FormData) {
       );
 
       // Clean up the legacy object storage file if it exists to keep storage pristine
-      const oldFileKey = getS3KeyFromUrl(existingSlider.image);
-      if (oldFileKey) {
+      // const oldFileKey = getS3KeyFromUrl(existingSlider.image);
+      if (existingSlider.image) {
         try {
           await s3Client.send(
             new DeleteObjectCommand({
               Bucket: process.env.MINIO_BUCKET_NAME,
-              Key: oldFileKey,
+              Key: existingSlider.image,
             }),
           );
         } catch (s3Error) {
@@ -137,7 +137,7 @@ export async function updateSlider(formData: FormData) {
         }
       }
 
-      updatedImageUrl = `${process.env.MINIO_ENDPOINT}/${process.env.MINIO_BUCKET_NAME}/${uniqueFileName}`;
+      updatedImageUrl = `${process.env.MINIO_BUCKET_NAME}/${uniqueFileName}`;
     }
 
     await db
@@ -168,15 +168,15 @@ export async function deleteSlider(id: string) {
       .where(eq(sliderItem.id, id));
 
     if (existingSlider) {
-      const fileKey = getS3KeyFromUrl(existingSlider.image);
+      // const fileKey = getS3KeyFromUrl(existingSlider.image);
 
       // 2. Clear out storage dependencies safely if matched
-      if (fileKey) {
+      if (existingSlider.image) {
         try {
           await s3Client.send(
             new DeleteObjectCommand({
               Bucket: process.env.MINIO_BUCKET_NAME,
-              Key: fileKey,
+              Key: existingSlider.image,
             }),
           );
         } catch (s3Error) {

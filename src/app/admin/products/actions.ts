@@ -56,7 +56,7 @@ export async function createProduct(formData: FormData) {
       );
 
       // Construct your permanent static public file URL
-      imageUrl = `${process.env.MINIO_ENDPOINT}/${process.env.MINIO_BUCKET_NAME}/${uniqueFileName}`;
+      imageUrl = `${process.env.MINIO_BUCKET_NAME}/${uniqueFileName}`;
     }
 
     // Insert everything seamlessly into your Chabokan database
@@ -124,7 +124,7 @@ export async function updateProduct(formData: FormData) {
         }),
       );
 
-      updateData.image = `${process.env.MINIO_ENDPOINT}/${process.env.MINIO_BUCKET_NAME}/${uniqueFileName}`;
+      updateData.image = `${process.env.MINIO_BUCKET_NAME}/${uniqueFileName}`;
     }
 
     await db.update(product).set(updateData).where(eq(product.id, id));
@@ -139,34 +139,36 @@ export async function updateProduct(formData: FormData) {
 
 export async function deleteProduct(
   productId: string,
-  imageUrl: string | null,
+  imagePath: string | null,
 ) {
-  try {
-    // 1. Only try to delete from MinIO if a valid image URL exists
-    if (imageUrl) {
-      // Extract the filename/key out of the full URL string
-      // e.g. "https://.../perfumes/file.png" -> split gives ["https:", "", "...", "perfumes", "file.png"]
-      // pop() gives "file.png". Your key is "file.png" (or "perfumes/file.png" depending on your bucket folder nesting)
-      const fileKey = imageUrl.split("/").pop();
+  // Try to delete the image, but don't let failures stop the product deletion.
+  if (imagePath) {
+    try {
+      await s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.MINIO_BUCKET_NAME,
+          Key: imagePath,
+        }),
+      );
 
-      if (fileKey) {
-        await s3Client.send(
-          new DeleteObjectCommand({
-            Bucket: process.env.MINIO_BUCKET_NAME,
-            Key: fileKey, // The exact key/name of the file inside the bucket
-          }),
-        );
-        console.log("Successfully deleted image from storage:", fileKey);
-      }
+      console.log("Successfully deleted image from storage:", imagePath);
+    } catch (error) {
+      console.warn(
+        "Failed to delete image from storage. Continuing with product deletion.",
+        error,
+      );
     }
+  }
 
-    // 2. Delete the record from your Chabokan PostgreSQL database via Drizzle ORM
+  // Always try to delete the database record.
+  try {
     await db.delete(product).where(eq(product.id, productId));
+
     console.log("Successfully deleted product from database:", productId);
 
     return { success: true };
   } catch (error) {
-    console.error("Failed to delete product:", error);
-    throw new Error("Deletion sequence failed");
+    console.error("Failed to delete product from database:", error);
+    throw new Error("Failed to delete product.");
   }
 }

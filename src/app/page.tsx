@@ -16,7 +16,11 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen flex w-vw overflow-x-hidden items-center justify-center text-white flex-col gap-6">
-      <div>{sliders && <Hero sliders={sliders} />}</div>
+      <div>
+        {sliders && (
+          <Hero BASE_URL={process.env.MINIO_ENDPOINT} sliders={sliders} />
+        )}
+      </div>
       <Featured />
     </div>
   );

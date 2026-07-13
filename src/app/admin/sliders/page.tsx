@@ -11,7 +11,13 @@ const page = async () => {
     .from(sliderItem)
     .orderBy(asc(sliderItem.order));
   const products = await db.select().from(product);
-  return <SlidersClient Sliders={sliders} Products={products} />;
+  return (
+    <SlidersClient
+      Sliders={sliders}
+      Products={products}
+      BASE_URL={process.env.MINIO_ENDPOINT}
+    />
+  );
 };
 
 export default page;
