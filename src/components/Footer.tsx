@@ -145,7 +145,7 @@ export default function Footer() {
             <span className="text-rose-500 animate-pulse">♥</span>
             <span>توسط</span>
             <a
-              href="https://aaui.ir"
+              // href="https://aaui.ir"
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-foreground transition hover:opacity-75 underline underline-offset-2"

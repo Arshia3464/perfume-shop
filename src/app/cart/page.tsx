@@ -66,6 +66,7 @@ export default async function PublicCartPage() {
         <CartPageClient
           initialItems={serializedItems}
           userId={session.user.id}
+          BASE_URL={process.env.MINIO_ENDPOINT}
         />
       </div>
     </div>

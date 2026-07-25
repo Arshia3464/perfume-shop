@@ -372,9 +372,7 @@ export default function ProductClient({
                   disabled={loading || item.stock === 0}
                   className="flex-1 rounded-full bg-primary py-4 text-sm font-bold text-background transition hover:bg-primary/90 hover:shadow-lg disabled:opacity-50 active:scale-95 duration-200"
                 >
-                  {loading
-                    ? "در حال افزودن به سبد..."
-                    : "افزودن به سبد خرید لوکس"}
+                  {loading ? "در حال افزودن به سبد..." : "افزودن به سبد خرید "}
                 </button>
 
                 <button
