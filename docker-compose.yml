@@ -1,0 +1,67 @@
+services:
+  # 1. PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: perfume_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: cafedb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # 2. MinIO Object Storage
+  minio:
+    image: minio/minio:latest
+    container_name: perfume_minio
+    restart: always
+    ports:
+      - "9000:9000" # S3 API
+      - "9001:9001" # Web Dashboard
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - miniodata:/data
+    command: server /data --console-address ":9001"
+
+  # 3. MinIO Auto Bucket Creator (Runs once and exits)
+  minio-init:
+    image: minio/mc:latest
+    container_name: perfume_minio_init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 2;
+      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb --ignore-existing myminio/perfumes;
+      /usr/bin/mc anonymous set download myminio/perfumes;
+      exit 0;
+      "
+
+  # 4. Next.js App
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: perfume_web
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:mysecretpassword@db:5432/cafedb"
+      MINIO_ENDPOINT: "http://minio:9000"
+      MINIO_ACCESS_KEY: "minioadmin"
+      MINIO_SECRET_KEY: "minioadmin"
+      MINIO_BUCKET_NAME: "perfumes"
+    depends_on:
+      - db
+      - minio
+
+volumes:
+  pgdata:
+  miniodata:
