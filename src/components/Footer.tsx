@@ -4,34 +4,12 @@ import Link from "next/link";
 import { HiArrowNarrowLeft } from "react-icons/hi";
 import { usePathname } from "next/navigation";
 
-const NAV = [
-  {
-    heading: "فروشگاه رویال",
-    links: [
-      { label: "همه محصولات", href: "/products" },
-      { label: "دکانت‌ها", href: "/decants" },
-      { label: "کلکسیون‌ها", href: "/collections" },
-      { label: "تازه‌واردها", href: "/new" },
-    ],
-  },
-  {
-    heading: "راهنما و پشتیبانی",
-    links: [
-      { label: "درباره دکانت", href: "/about-decant" },
-      { label: "راهنمای انتخاب رایحه", href: "/guide" },
-      { label: "سوالات متداول", href: "/faq" },
-      { label: "تماس با ما", href: "/contact" },
-    ],
-  },
-  {
-    heading: "حساب کاربری",
-    links: [
-      { label: "ورود به پنل", href: "/login" },
-      { label: "ثبت‌نام", href: "/register" },
-      { label: "سفارش‌های من", href: "/orders" },
-      { label: "علاقه‌مندی‌ها", href: "/wishlist" },
-    ],
-  },
+// ─── Only your actual 4 pages ───────────────────────────────────────────────
+const QUICK_LINKS = [
+  { label: "صفحه اصلی", href: "/" },
+  { label: "کاتالوگ محصولات", href: "/products" },
+  { label: "داستان رویال (درباره ما)", href: "/about" },
+  { label: "ورود / ثبت‌نام", href: "/login" },
 ];
 
 const SOCIALS = [
@@ -76,12 +54,12 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* ── Main Grid Container (Optimized Layout Footprint) ────────────── */}
+      {/* ── Main Grid Container (Compacted Layout) ───────────────────────── */}
       <div className="container mx-auto px-5 py-10 md:px-6 md:py-14">
-        {/* Responsive grid uses 2 columns on mobile instead of stacking long vertically */}
-        <div className="grid gap-8 grid-cols-2 sm:grid-cols-3 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
-          {/* Brand/Identity Column (Spans full width on mobile grid rows to reset layout safely) */}
-          <div className="flex flex-col gap-4 col-span-2 sm:col-span-3 lg:col-span-1 pb-4 lg:pb-0 border-b border-border/40 lg:border-none">
+        {/* Adjusted grid to perfectly fit just 3 columns */}
+        <div className="grid gap-8 grid-cols-2 lg:grid-cols-[2fr_1fr_1fr]">
+          {/* Brand/Identity Column (Spans full width on mobile) */}
+          <div className="flex flex-col gap-4 col-span-2 lg:col-span-1 pb-4 lg:pb-0 border-b border-border/40 lg:border-none">
             <div>
               <p className="text-xl font-black tracking-wider text-foreground">
                 ROYAL
@@ -94,41 +72,47 @@ export default function Footer() {
               ارائه دکانت‌های اصیل و رایحه‌های کلکسیونی نایاب از لوکس‌ترین
               خانه‌های عطر جهان برای صاحبان سلیقه.
             </p>
-            <div className="flex gap-4 mt-1">
-              {SOCIALS.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-muted-foreground transition hover:text-foreground underline underline-offset-4 decoration-transparent hover:decoration-current"
-                >
-                  {s.label}
-                </a>
-              ))}
-            </div>
           </div>
 
-          {/* Navigation Links Columns */}
-          {NAV.map((col) => (
-            <div key={col.heading} className="flex flex-col gap-3.5 col-span-1">
-              <p className="text-[10px] tracking-[0.2em] font-bold text-muted-foreground/80 uppercase">
-                {col.heading}
-              </p>
-              <ul className="flex flex-col gap-2.5">
-                {col.links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-xs md:text-sm text-muted-foreground transition hover:text-foreground"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* Quick Links Column */}
+          <div className="flex flex-col gap-3.5 col-span-1">
+            <p className="text-[10px] tracking-[0.2em] font-bold text-muted-foreground/80 uppercase">
+              دسترسی سریع
+            </p>
+            <ul className="flex flex-col gap-2.5">
+              {QUICK_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-xs md:text-sm text-muted-foreground transition hover:text-foreground"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Socials Column */}
+          <div className="flex flex-col gap-3.5 col-span-1">
+            <p className="text-[10px] tracking-[0.2em] font-bold text-muted-foreground/80 uppercase">
+              ارتباط با ما
+            </p>
+            <ul className="flex flex-col gap-2.5">
+              {SOCIALS.map((s) => (
+                <li key={s.href}>
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs md:text-sm text-muted-foreground transition hover:text-foreground"
+                  >
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -140,12 +124,12 @@ export default function Footer() {
             محفوظ است.
           </p>
 
-          <p className="flex items-center gap-1 order-3 sm:order-2">
+          <p className="flex items-center gap-1">
             <span>ساخته شده با</span>
             <span className="text-rose-500 animate-pulse">♥</span>
             <span>توسط</span>
             <a
-              // href="https://aaui.ir"
+              href="https://aaui.ir"
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-foreground transition hover:opacity-75 underline underline-offset-2"
@@ -153,15 +137,6 @@ export default function Footer() {
               Arshia
             </a>
           </p>
-
-          <div className="flex gap-4 order-2 sm:order-3">
-            <Link href="/privacy" className="transition hover:text-foreground">
-              حریم خصوصی
-            </Link>
-            <Link href="/terms" className="transition hover:text-foreground">
-              قوانین فروشگاه
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

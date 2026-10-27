@@ -5,7 +5,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { HiArrowNarrowLeft, HiArrowNarrowRight } from "react-icons/hi";
 
-type SliderItem = {
+export type SliderItem = {
   id: string;
   productId: string;
   text: string | null;
@@ -16,10 +16,9 @@ type SliderItem = {
 
 interface HeroProps {
   sliders: SliderItem[];
-  BASE_URL: string | undefined;
 }
 
-export default function Hero({ sliders, BASE_URL }: HeroProps) {
+export default function Hero({ sliders }: HeroProps) {
   const [current, setCurrent] = useState(0);
   const total = sliders.length;
 
@@ -29,7 +28,7 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
       setCurrent((prev) => (prev + 1) % total);
     }, 6000);
     return () => clearInterval(interval);
-  }, [total, current]);
+  }, [total]);
 
   if (!sliders.length) return null;
 
@@ -41,7 +40,7 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
   return (
     <section
       dir="rtl"
-      className="relative overflow-hidden bg-background min-h-[100svh] w-full flex items-center justify-center"
+      className="relative overflow-hidden bg-background min-h-svh w-full flex items-center justify-center"
     >
       {/* ── Ambient background orbs ───────────────────────────────────────── */}
       <div
@@ -57,13 +56,13 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
             transition={{ duration: 1.2 }}
             className="absolute inset-0"
           >
-            <div className="absolute top-[-10%] right-[-5%] h-[400px] w-[400px] md:h-[600px] md:w-[600px] rounded-full bg-foreground/[0.02] blur-3xl" />
-            <div className="absolute bottom-[-10%] left-[10%] h-[300px] w-[300px] md:h-[400px] md:w-[400px] rounded-full bg-foreground/[0.02] blur-3xl" />
+            <div className="absolute top-[-10%] right-[-5%] h-[400px] w-[400px] md:h-[600px] md:w-[600px] rounded-full bg-foreground/2 blur-3xl" />
+            <div className="absolute bottom-[-10%] left-[10%] h-[300px] w-[300px] md:h-[400px] md:w-[400px] rounded-full bg-foreground/2 blur-3xl" />
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* ── Ghost slide number (Hidden completely on smaller phones to look cleaner) ── */}
+      {/* ── Ghost slide number ─────────────────────────────────────────────── */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 hidden sm:flex items-center justify-end pr-[6%]"
@@ -75,7 +74,7 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="select-none text-[16rem] md:text-[22rem] lg:text-[28rem] font-black leading-none text-foreground/[0.04] lg:text-[0.085]"
+            className="select-none text-[16rem] md:text-[22rem] lg:text-[28rem] font-black leading-none text-foreground/[0.04]"
           >
             {String(current + 1).padStart(2, "0")}
           </motion.span>
@@ -103,10 +102,9 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
 
       {/* ── Main Layout Wrapper ────────────────────────────────────────── */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-12 text-foreground w-full relative z-10">
-        <div className="grid min-h-[100svh] items-center gap-6 pt-20 pb-10 lg:grid-cols-[1fr_1fr] lg:gap-0 lg:pt-0 lg:pb-0">
-          {/* CONTENT COL (Blink-Free layout containment) ───────────────────── */}
+        <div className="grid min-h-svh items-center gap-6 pt-20 pb-10 lg:grid-cols-[1fr_1fr] lg:gap-0 lg:pt-0 lg:pb-0">
+          {/* CONTENT COL ───────────────────────────────────────────────────── */}
           <div className="flex flex-col justify-center order-2 lg:order-1 lg:h-full max-w-xl mx-auto lg:mx-0 w-full">
-            {/* Unified Animation Frame to avoid multi-element jerking layout resets */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={`slide-content-${slide.id}`}
@@ -116,7 +114,6 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
                 transition={{ duration: 0.45, ease: [0.25, 1, 0.5, 1] }}
                 className="w-full flex flex-col items-center text-center lg:items-start lg:text-right"
               >
-                {/* Eyebrow */}
                 <div className="mb-4 flex items-center gap-3 justify-center lg:justify-start">
                   <span className="hidden lg:block h-px w-8 bg-muted-foreground/40" />
                   <span className="text-[10px] md:text-xs tracking-[0.35em] uppercase text-muted-foreground font-medium">
@@ -124,18 +121,15 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
                   </span>
                 </div>
 
-                {/* Headline (Min height container locks layout shifting) */}
                 <h1 className="mb-4 text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black leading-[1.25] tracking-tight text-foreground min-h-[2.5em] lg:min-h-[auto] flex items-center justify-center lg:justify-start">
                   {slide.text}
                 </h1>
 
-                {/* Body Text */}
                 <p className="mb-8 max-w-sm text-xs sm:text-sm md:text-base leading-7 md:leading-8 text-muted-foreground lg:text-foreground">
                   مجموعه‌ای از بهترین عطرها و دکانت‌های خاص برای کسانی که به
                   دنبال امضای شخصی رایحه خود هستند.
                 </p>
 
-                {/* Call To Actions */}
                 <div className="flex items-center gap-4 justify-center lg:justify-start w-full sm:w-auto">
                   <button className="rounded-full bg-foreground px-6 sm:px-8 py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-background transition-transform hover:scale-105 active:scale-100 shadow-sm cursor-pointer">
                     مشاهده محصول
@@ -148,7 +142,6 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
               </motion.div>
             </AnimatePresence>
 
-            {/* Navigation Controls Component Container */}
             <div className="mt-10 sm:mt-12 lg:mt-16 flex items-center justify-center lg:justify-start gap-5 w-full">
               <button
                 onClick={prevSlide}
@@ -158,7 +151,6 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
                 <HiArrowNarrowRight size={16} />
               </button>
 
-              {/* Dot Indicators */}
               <div className="flex items-center gap-1.5">
                 {sliders.map((_, i) => (
                   <button
@@ -186,7 +178,6 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
                 <HiArrowNarrowLeft size={16} />
               </button>
 
-              {/* Counter UI Metrics */}
               <span className="text-[10px] sm:text-xs tracking-[0.25em] text-muted-foreground font-medium mr-4 sm:mr-6 lg:mr-auto">
                 {String(current + 1).padStart(2, "0")}
                 <span className="mx-1.5 text-muted-foreground/30">/</span>
@@ -197,7 +188,6 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
 
           {/* IMAGE PERFORMANCE STAGE COL ─────────────────────────────── */}
           <div className="relative flex items-center justify-center order-1 lg:order-2 h-[260px] sm:h-[340px] lg:h-auto">
-            {/* Decorative structural circles (Scaled safely dynamically down on phones) */}
             <div
               aria-hidden
               className="absolute h-[240px] w-[240px] sm:h-[340px] sm:w-[340px] lg:h-[560px] lg:w-[560px] rounded-full border border-border/20"
@@ -207,7 +197,6 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
               className="absolute h-[180px] w-[180px] sm:h-[260px] sm:w-[260px] lg:h-[440px] lg:w-[440px] rounded-full border border-border/10"
             />
 
-            {/* Stage bounds mapping */}
             <div className="relative z-10 h-[220px] w-[220px] sm:h-[300px] sm:w-[300px] lg:h-[500px] lg:w-[500px]">
               {sliders.map((s, i) => (
                 <motion.div
@@ -221,11 +210,13 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
                 >
                   {s.image ? (
                     <Image
-                      src={`${BASE_URL}/${s.image}`}
-                      alt={s.text ?? ""}
+                      src={s.image}
+                      alt={s.text ?? "عطر منتخب"}
                       fill
                       priority={i === 0}
+                      sizes="(max-width: 640px) 220px, (max-width: 1024px) 300px, 500px"
                       className="object-contain drop-shadow-2xl select-none pointer-events-none"
+                      unoptimized={s.image.includes("localhost")}
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center opacity-5">
@@ -236,7 +227,6 @@ export default function Hero({ sliders, BASE_URL }: HeroProps) {
               ))}
             </div>
 
-            {/* Premium Floating Context Label (Hidden completely below desktop thresholds) */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={`card-${slide.id}`}

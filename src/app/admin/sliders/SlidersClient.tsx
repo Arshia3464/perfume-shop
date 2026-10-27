@@ -37,7 +37,7 @@ type SliderFormState = {
   id: string;
   productId: string;
   text: string;
-  image: string; // Existing URL or placeholder path
+  image: string; // Existing URL or S3 key
   order: number;
 };
 
@@ -48,6 +48,28 @@ const defaultForm: SliderFormState = {
   image: "",
   order: 0,
 };
+
+// ─── Resolve Image Source (External URL vs Object Storage Path) ───────────────
+function resolveImageSrc(
+  imagePath: string | null | undefined,
+  baseUrl: string | undefined,
+): string | null {
+  if (!imagePath) return null;
+
+  if (
+    imagePath.startsWith("http://") ||
+    imagePath.startsWith("https://") ||
+    imagePath.startsWith("blob:") ||
+    imagePath.startsWith("data:")
+  ) {
+    return imagePath;
+  }
+
+  const cleanBase = baseUrl?.replace(/\/+$/, "") || "";
+  const cleanPath = imagePath.replace(/^\/+/, "");
+
+  return cleanBase ? `${cleanBase}/${cleanPath}` : `/${cleanPath}`;
+}
 
 export default function SlidersClient({
   Sliders,
@@ -96,11 +118,14 @@ export default function SlidersClient({
       fd.append("image", file);
     }
 
-    await createSlider(fd);
-    setOpen(false);
-    resetForm();
+    const res = await createSlider(fd);
     setIsSubmitting(false);
-    router.refresh();
+
+    if (res?.success !== false) {
+      setOpen(false);
+      resetForm();
+      router.refresh();
+    }
   }
 
   async function handleUpdate(file: File | null) {
@@ -117,17 +142,22 @@ export default function SlidersClient({
       fd.append("image", form.image);
     }
 
-    await updateSlider(fd);
-    setEditing(null);
-    resetForm();
+    const res = await updateSlider(fd);
     setIsSubmitting(false);
-    router.refresh();
+
+    if (res?.success !== false) {
+      setEditing(null);
+      resetForm();
+      router.refresh();
+    }
   }
 
   async function handleDelete(id: string) {
     if (confirm("آیا از حذف این بنر اطمینان دارید؟")) {
-      await deleteSlider(id);
-      router.refresh();
+      const res = await deleteSlider(id);
+      if (res?.success !== false) {
+        router.refresh();
+      }
     }
   }
 
@@ -171,6 +201,8 @@ export default function SlidersClient({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Sliders.map((s) => {
             const linkedProduct = productLookup.get(s.productId);
+            const bannerSrc = resolveImageSrc(s.image, BASE_URL);
+
             return (
               <div
                 key={s.id}
@@ -181,9 +213,9 @@ export default function SlidersClient({
                   className="aspect-[16/9] bg-[var(--secondary)]/30 overflow-hidden relative border-b border-[var(--accent)]/10 cursor-pointer"
                   onClick={() => openEdit(s)}
                 >
-                  {s.image ? (
+                  {bannerSrc ? (
                     <img
-                      src={`${BASE_URL}/${s.image}`}
+                      src={bannerSrc}
                       alt={s.text || "Banner"}
                       className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                     />
@@ -360,7 +392,8 @@ function SliderForm({
     await onSubmit(selectedFile);
   }
 
-  const previewSrc = previewUrl || BASE_URL + "/" + form.image;
+  // Derive preview: local blob takes precedence, fallback to resolved S3/direct URL
+  const previewSrc = previewUrl || resolveImageSrc(form.image, BASE_URL);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 text-right antialiased">
@@ -407,7 +440,7 @@ function SliderForm({
 
       {/* EDITORIAL BANNER TEXT */}
       <div className="space-y-1">
-        <label className="text-[11px] text-[var(--foreground)]/50 font-light">
+        <label className="text-[11px] text-(--foreground)/50 font-light">
           عنوان بیانیه عطر (متن روی اسلاید)
         </label>
         <input
@@ -415,7 +448,7 @@ function SliderForm({
           placeholder="مانند: عود اسپاهان؛ تجسم شکوه خاورمیانه در نت‌های شرقی"
           value={form.text}
           onChange={(e) => setForm({ ...form, text: e.target.value })}
-          className="w-full bg-[var(--secondary)]/10 border border-[var(--accent)]/20 rounded-xl px-3 py-2 text-sm outline-none focus:border-[var(--accent)] text-[var(--foreground)] font-light placeholder:text-[var(--foreground)]/30"
+          className="w-full bg-secondary/10 border border-accent/20 rounded-xl px-3 py-2 text-sm outline-none focus:border-accent text-foreground font-light placeholder:text-[var(--foreground)]/30"
         />
       </div>
 
@@ -430,17 +463,17 @@ function SliderForm({
           placeholder="مانند: ۱"
           value={form.order || ""}
           onChange={(e) => setForm({ ...form, order: Number(e.target.value) })}
-          className="w-full bg-[var(--secondary)]/10 border border-[var(--accent)]/20 rounded-xl px-3 py-2 text-sm outline-none focus:border-[var(--accent)] text-[var(--foreground)] font-light"
+          className="w-full bg-secondary/10 border border-accent/20 rounded-xl px-3 py-2 text-sm outline-none focus:border-[var(--accent)] text-[var(--foreground)] font-light"
         />
       </div>
 
       {/* IMAGE ARTIFACT DISK SELECTION */}
       <div className="space-y-1.5">
-        <label className="text-[11px] text-[var(--foreground)]/50 font-light">
-          بوم تصویر عرید اسلایدر (کاور ۱۶:۹ توصیه می‌شود)
+        <label className="text-[11px] text-(--foreground)/50 font-light">
+          بوم تصویر عریض اسلایدر (کاور ۱۶:۹ توصیه می‌شود)
         </label>
         <div className="flex items-center gap-4">
-          <label className="flex items-center justify-center gap-2 px-4 py-2 border border-[var(--accent)]/30 rounded-xl bg-[var(--secondary)]/10 hover:bg-[var(--secondary)]/30 text-xs text-[var(--foreground)]/70 cursor-pointer transition-colors font-light">
+          <label className="flex items-center justify-center gap-2 px-4 py-2 border border-(--accent)/30 rounded-xl bg-[var(--secondary)]/10 hover:bg-[var(--secondary)]/30 text-xs text-[var(--foreground)]/70 cursor-pointer transition-colors font-light">
             <FiUpload className="w-3.5 h-3.5" />
             <span>بارگذاری بوم تصویر...</span>
             <input
@@ -464,7 +497,7 @@ function SliderForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full mt-2 bg-[var(--foreground)] text-[var(--background)] py-2.5 rounded-xl text-sm font-medium hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full mt-2 bg-foreground text-background py-2.5 rounded-xl text-sm font-medium hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
       >
         <FiCheck className="w-4 h-4" />
         <span>

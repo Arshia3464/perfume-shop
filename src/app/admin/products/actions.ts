@@ -11,39 +11,35 @@ import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
-// Initialize the S3 client to connect to Chabokan MinIO container
 const s3Client = new S3Client({
   endpoint: process.env.MINIO_ENDPOINT,
-  region: "us-east-1", // AWS client requires a placeholder region format
+  region: "us-east-1",
   credentials: {
     accessKeyId: process.env.MINIO_ACCESS_KEY!,
     secretAccessKey: process.env.MINIO_SECRET_KEY!,
   },
-  forcePathStyle: true, // Required for self-hosted MinIO clusters
+  forcePathStyle: true,
 });
 
 export async function createProduct(formData: FormData) {
   try {
-    const name = String(formData.get("name"));
-    const description = String(formData.get("description"));
-    const price = Number(formData.get("price"));
-    const stock = Number(formData.get("stock"));
-    const brand = String(formData.get("brand"));
-    const gender = String(formData.get("gender"));
-    const season = String(formData.get("season"));
-    const volumeMl = Number(formData.get("volumeMl"));
+    const name = String(formData.get("name") || "");
+    const description = String(formData.get("description") || "");
+    const price = Number(formData.get("price") || 0);
+    const stock = Number(formData.get("stock") || 0);
+    const brand = String(formData.get("brand") || "");
+    const gender = String(formData.get("gender") || "unisex");
+    const season = String(formData.get("season") || "");
+    const volumeMl = Number(formData.get("volumeMl") || 0);
 
-    // Extract the raw file object from the form input
-    const imageFile = formData.get("image") as File;
-    let imageUrl = "";
+    const imageFile = formData.get("image") as File | null;
+    let imageKey: string | null = null;
 
-    // If a file was uploaded, handle transmission to MinIO
     if (imageFile && imageFile.size > 0) {
       const bytes = await imageFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      // Generate a unique randomized filename to avoid overwrite collisions
-      const fileExtension = imageFile.name.split(".").pop();
+      const fileExtension = imageFile.name.split(".").pop() || "png";
       const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExtension}`;
 
       await s3Client.send(
@@ -55,11 +51,9 @@ export async function createProduct(formData: FormData) {
         }),
       );
 
-      // Construct your permanent static public file URL
-      imageUrl = `${process.env.MINIO_BUCKET_NAME}/${uniqueFileName}`;
+      imageKey = uniqueFileName;
     }
 
-    // Insert everything seamlessly into your Chabokan database
     await db.insert(product).values({
       id: nanoid(),
       name,
@@ -70,13 +64,13 @@ export async function createProduct(formData: FormData) {
       gender,
       season,
       volumeMl,
-      image: imageUrl, // Storing our permanent cloud storage string link
+      image: imageKey,
     });
 
     revalidatePath("/admin/products");
     return { success: true };
   } catch (error) {
-    console.error("Failed to upload and create product:", error);
+    console.error("Failed to create product:", error);
     return { success: false, error: "Product creation failed." };
   }
 }
@@ -84,19 +78,22 @@ export async function createProduct(formData: FormData) {
 export async function updateProduct(formData: FormData) {
   try {
     const id = String(formData.get("id"));
-    const name = String(formData.get("name"));
-    const description = String(formData.get("description"));
-    const price = Number(formData.get("price"));
-    const stock = Number(formData.get("stock"));
-    const brand = String(formData.get("brand"));
-    const gender = String(formData.get("gender"));
-    const season = String(formData.get("season"));
-    const volumeMl = Number(formData.get("volumeMl"));
+    if (!id) {
+      return { success: false, error: "Missing product ID." };
+    }
 
-    const imageFile = formData.get("image") as File;
+    const name = String(formData.get("name") || "");
+    const description = String(formData.get("description") || "");
+    const price = Number(formData.get("price") || 0);
+    const stock = Number(formData.get("stock") || 0);
+    const brand = String(formData.get("brand") || "");
+    const gender = String(formData.get("gender") || "unisex");
+    const season = String(formData.get("season") || "");
+    const volumeMl = Number(formData.get("volumeMl") || 0);
 
-    // Set up standard mutations container
-    const updateData: any = {
+    const imageFile = formData.get("image") as File | null;
+
+    const updateData: Record<string, any> = {
       name,
       description,
       price,
@@ -105,14 +102,33 @@ export async function updateProduct(formData: FormData) {
       gender,
       season,
       volumeMl,
+      updatedAt: new Date(),
     };
 
-    // Only process upload if user added a brand new asset file
     if (imageFile && imageFile.size > 0) {
+      const existing = await db
+        .select({ image: product.image })
+        .from(product)
+        .where(eq(product.id, id))
+        .limit(1);
+
+      if (existing[0]?.image) {
+        try {
+          await s3Client.send(
+            new DeleteObjectCommand({
+              Bucket: process.env.MINIO_BUCKET_NAME,
+              Key: existing[0].image,
+            }),
+          );
+        } catch (err) {
+          console.warn("Failed to delete previous image:", err);
+        }
+      }
+
       const bytes = await imageFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      const fileExtension = imageFile.name.split(".").pop();
+      const fileExtension = imageFile.name.split(".").pop() || "png";
       const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExtension}`;
 
       await s3Client.send(
@@ -124,51 +140,42 @@ export async function updateProduct(formData: FormData) {
         }),
       );
 
-      updateData.image = `${process.env.MINIO_BUCKET_NAME}/${uniqueFileName}`;
+      updateData.image = uniqueFileName;
     }
 
     await db.update(product).set(updateData).where(eq(product.id, id));
 
-    revalidatePath("/admin/products");
+    revalidatePath("/admin/products/");
     return { success: true };
   } catch (error) {
-    console.error("Failed to modify product record:", error);
+    console.error("Failed to update product:", error);
     return { success: false, error: "Product update failed." };
   }
 }
 
 export async function deleteProduct(
   productId: string,
-  imagePath: string | null,
+  imageKey: string | null,
 ) {
-  // Try to delete the image, but don't let failures stop the product deletion.
-  if (imagePath) {
+  if (imageKey) {
     try {
       await s3Client.send(
         new DeleteObjectCommand({
           Bucket: process.env.MINIO_BUCKET_NAME,
-          Key: imagePath,
+          Key: imageKey,
         }),
       );
-
-      console.log("Successfully deleted image from storage:", imagePath);
     } catch (error) {
-      console.warn(
-        "Failed to delete image from storage. Continuing with product deletion.",
-        error,
-      );
+      console.warn("Failed to delete image from storage:", error);
     }
   }
 
-  // Always try to delete the database record.
   try {
     await db.delete(product).where(eq(product.id, productId));
-
-    console.log("Successfully deleted product from database:", productId);
-
+    revalidatePath("/admin/products");
     return { success: true };
   } catch (error) {
     console.error("Failed to delete product from database:", error);
-    throw new Error("Failed to delete product.");
+    return { success: false, error: "Failed to delete product." };
   }
 }

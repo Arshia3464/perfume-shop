@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { product } from "@/db/schema";
 import Link from "next/link";
+import Image from "next/image";
 
 // Premium React Icons for luxury UI branding
 import {
@@ -11,8 +12,13 @@ import {
   IoSparklesOutline,
 } from "react-icons/io5";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProductsPage() {
   const products = await db.select().from(product);
+
+  const endpoint = process.env.MINIO_ENDPOINT?.replace(/\/$/, "");
+  const bucket = process.env.MINIO_BUCKET_NAME || "perfumes";
 
   return (
     <div
@@ -51,7 +57,6 @@ export default async function ProductsPage() {
       <div className="container mx-auto px-4 py-12 max-w-7xl">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((p, index) => {
-            // Elegant Persian translation + specific line icon configuration for target demographic
             const demographic =
               p.gender.toLowerCase() === "men"
                 ? {
@@ -68,6 +73,12 @@ export default async function ProductsPage() {
                       icon: <IoMaleFemaleOutline className="w-3.5 h-3.5" />,
                     };
 
+            const imageUrl = p.image
+              ? p.image.startsWith("http://") || p.image.startsWith("https://")
+                ? p.image
+                : `${endpoint}/${bucket}/${p.image.replace(/^\//, "")}`
+              : null;
+
             return (
               <Link
                 key={p.id}
@@ -76,13 +87,18 @@ export default async function ProductsPage() {
               >
                 <div>
                   {/* IMAGE PREVIEW FRAME */}
-                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-secondary/20 border-b border-secondary/40 flex items-center justify-center">
-                    {p.image ? (
-                      <img
-                        src={`${process.env.MINIO_ENDPOINT}/${p.image}`}
-                        alt={p.name}
-                        className="h-4/5 w-4/5 object-contain p-4 transition duration-500 group-hover:scale-105 filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.05)]"
-                      />
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-secondary/20 border-b border-secondary/40 flex items-center justify-center p-4">
+                    {imageUrl ? (
+                      <div className="relative h-full w-full">
+                        <Image
+                          src={imageUrl}
+                          alt={p.name}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          className="object-contain p-2 transition duration-500 group-hover:scale-105 filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.05)]"
+                          unoptimized={imageUrl.includes("localhost")}
+                        />
+                      </div>
                     ) : (
                       <div className="text-xs font-bold text-neutral-400">
                         فاقد تصویر محصول
@@ -90,20 +106,20 @@ export default async function ProductsPage() {
                     )}
 
                     {/* Premium minimalist card position index number */}
-                    <div className="absolute right-4 top-4 text-[10px] font-bold tracking-widest text-neutral-400">
+                    <div className="absolute right-4 top-4 z-10 text-[10px] font-bold tracking-widest text-neutral-400">
                       {(index + 1).toLocaleString("fa-IR", {
                         minimumIntegerDigits: 2,
                       })}
                     </div>
 
                     {/* Floating Gender/Type Badge */}
-                    <div className="absolute left-4 top-4 flex items-center gap-1 rounded-md border border-secondary/60 bg-background/80 backdrop-blur-xs px-2 py-1 text-[10px] font-bold text-neutral-500">
+                    <div className="absolute left-4 top-4 z-10 flex items-center gap-1 rounded-md border border-secondary/60 bg-background/80 backdrop-blur-xs px-2 py-1 text-[10px] font-bold text-neutral-500">
                       {demographic.icon}
                       <span>{demographic.label}</span>
                     </div>
 
                     {/* Gradient soft grounding backdrop shadow */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-transparent to-transparent pointer-events-none z-1" />
                   </div>
 
                   {/* ESSENTIAL WRITTEN DETAILS */}

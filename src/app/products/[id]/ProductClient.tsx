@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   IoSnowOutline,
@@ -68,10 +69,10 @@ function splitDescription(text: string | null) {
 
 export default function ProductClient({
   item,
-  BASE_URL,
+  imageUrl,
 }: {
   item: Product;
-  BASE_URL: string | undefined;
+  imageUrl: string | null;
 }) {
   const [loading, setLoading] = useState(false);
   const [wishLoading, setWishLoading] = useState(false);
@@ -80,7 +81,6 @@ export default function ProductClient({
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
 
-  // Luxury inline notification states
   const [successNotification, setSuccessNotification] = useState<string | null>(
     null,
   );
@@ -95,7 +95,6 @@ export default function ProductClient({
     ? seasonMap[item.season.toLowerCase()]
     : null;
 
-  // Auto-clear notification banner after 4 seconds
   useEffect(() => {
     if (successNotification) {
       const timer = setTimeout(() => setSuccessNotification(null), 4000);
@@ -151,17 +150,25 @@ export default function ProductClient({
             transition={{ duration: 0.6 }}
             className="lg:col-span-6 lg:sticky lg:top-28"
           >
-            <div className="relative aspect-[4/5] w-full flex items-center justify-center overflow-hidden rounded-3xl bg-secondary/30 border border-secondary/40 backdrop-blur-sm">
+            <div className="relative aspect-[4/5] w-full flex items-center justify-center overflow-hidden rounded-3xl bg-secondary/30 border border-secondary/40 backdrop-blur-sm p-6">
               <div className="absolute h-96 w-96 rounded-full bg-accent/5 blur-3xl animate-pulse" />
 
-              {item.image ? (
-                <motion.img
-                  whileHover={{ scale: 1.03 }}
+              {imageUrl ? (
+                <motion.div
+                  whileHover={{ scale: 1.04 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
-                  src={`${BASE_URL}/${item.image}`}
-                  alt={item.name}
-                  className="z-10 h-4/5 w-4/5 object-contain filter drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)]"
-                />
+                  className="relative z-10 h-4/5 w-4/5"
+                >
+                  <Image
+                    src={imageUrl}
+                    alt={item.name}
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-contain filter drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)]"
+                    unoptimized={imageUrl.includes("localhost")}
+                  />
+                </motion.div>
               ) : (
                 <div className="text-sm tracking-widest text-neutral-400">
                   بدون تصویر محصول

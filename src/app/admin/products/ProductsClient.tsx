@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiBox,
@@ -27,6 +28,30 @@ type Product = {
   updatedAt?: string | null;
 };
 
+// ─── Resolve Image Source (External URL vs Object Storage Path) ───────────────
+function resolveImageSrc(
+  imagePath: string | null | undefined,
+  baseUrl: string | undefined,
+): string | null {
+  if (!imagePath) return null;
+
+  // Direct web URLs or temporary client-side blobs (from URL.createObjectURL)
+  if (
+    imagePath.startsWith("http://") ||
+    imagePath.startsWith("https://") ||
+    imagePath.startsWith("blob:") ||
+    imagePath.startsWith("data:")
+  ) {
+    return imagePath;
+  }
+
+  // Object storage path: clean duplicate leading/trailing slashes
+  const cleanBase = baseUrl?.replace(/\/+$/, "") || "";
+  const cleanPath = imagePath.replace(/^\/+/, "");
+
+  return cleanBase ? `${cleanBase}/${cleanPath}` : `/${cleanPath}`;
+}
+
 export default function ProductsClient({
   initialProducts,
   BASE_URL,
@@ -34,20 +59,19 @@ export default function ProductsClient({
   initialProducts: Product[];
   BASE_URL: string | undefined;
 }) {
-  const [products] = useState(initialProducts);
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [selected, setSelected] = useState<Product | null>(null);
 
-  console.log(products);
-
+  // Directly derive the list from the incoming server prop
   const filtered = useMemo(() => {
-    return products.filter(
+    return initialProducts.filter(
       (p) =>
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.brand.toLowerCase().includes(search.toLowerCase()),
     );
-  }, [products, search]);
+  }, [initialProducts, search]);
 
   return (
     <div className="space-y-8 w-full max-w-6xl" dir="rtl">
@@ -95,84 +119,91 @@ export default function ProductsClient({
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filtered.map((p) => (
-            <div
-              key={p.id}
-              onClick={() => setSelected(p)}
-              className="group bg-[var(--secondary)]/10 border border-[var(--accent)]/20 rounded-2xl overflow-hidden backdrop-blur-sm cursor-pointer hover:border-[var(--accent)]/50 transition-all duration-300 flex flex-col text-right"
-            >
-              {/* Image Box */}
-              <div className="aspect-[4/5] bg-[var(--secondary)]/30 overflow-hidden relative border-b border-[var(--accent)]/10">
-                {p.image ? (
-                  <img
-                    src={`${BASE_URL}/${p.image}`}
-                    alt={p.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[var(--foreground)]/20 text-xs font-light">
-                    فاقد تصویر آرشیو
+          {filtered.map((p) => {
+            const imgSrc = resolveImageSrc(p.image, BASE_URL);
+
+            return (
+              <div
+                key={p.id}
+                onClick={() => setSelected(p)}
+                className="group bg-[var(--secondary)]/10 border border-[var(--accent)]/20 rounded-2xl overflow-hidden backdrop-blur-sm cursor-pointer hover:border-[var(--accent)]/50 transition-all duration-300 flex flex-col text-right"
+              >
+                {/* Image Box */}
+                <div className="aspect-[4/5] bg-[var(--secondary)]/30 overflow-hidden relative border-b border-[var(--accent)]/10">
+                  {imgSrc ? (
+                    <img
+                      src={imgSrc}
+                      alt={p.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[var(--foreground)]/20 text-xs font-light">
+                      فاقد تصویر آرشیو
+                    </div>
+                  )}
+                  <div className="absolute left-3 top-3 bg-[var(--background)]/80 backdrop-blur-md border border-[var(--accent)]/20 text-[10px] px-2 py-0.5 rounded-md text-[var(--foreground)]/60 font-light">
+                    {p.gender === "men"
+                      ? "مردانه"
+                      : p.gender === "women"
+                        ? "زنانه"
+                        : "یونیسکس"}
                   </div>
-                )}
-                <div className="absolute left-3 top-3 bg-[var(--background)]/80 backdrop-blur-md border border-[var(--accent)]/20 text-[10px] px-2 py-0.5 rounded-md text-[var(--foreground)]/60 font-light">
-                  {p.gender === "men"
-                    ? "مردانه"
-                    : p.gender === "women"
-                      ? "زنانه"
-                      : "یونیسکس"}
-                </div>
-              </div>
-
-              {/* Data Details Block */}
-              <div className="p-4 flex-1 flex flex-col justify-between gap-3">
-                <div className="space-y-1">
-                  <span className="text-[10px] tracking-wider text-[var(--accent)] font-medium uppercase">
-                    {p.brand}
-                  </span>
-                  <h2 className="text-sm font-medium text-[var(--foreground)] line-clamp-1">
-                    {p.name}
-                  </h2>
                 </div>
 
-                <div className="flex items-end justify-between border-t border-[var(--accent)]/5 pt-3">
-                  <span className="text-sm font-medium text-[var(--foreground)]">
-                    {p.price.toLocaleString("fa-IR")}{" "}
-                    <span className="text-[10px] text-[var(--foreground)]/40 font-light">
-                      تومان
+                {/* Data Details Block */}
+                <div className="p-4 flex-1 flex flex-col justify-between gap-3">
+                  <div className="space-y-1">
+                    <span className="text-[10px] tracking-wider text-[var(--accent)] font-medium uppercase">
+                      {p.brand}
                     </span>
-                  </span>
-                  <span
-                    className={`text-[10px] font-light ${p.stock <= 2 ? "text-rose-400" : "text-[var(--foreground)]/40"}`}
-                  >
-                    {p.stock === 0
-                      ? "اتمام انبار"
-                      : `${p.stock.toLocaleString("fa-IR")} عدد`}
-                  </span>
+                    <h2 className="text-sm font-medium text-[var(--foreground)] line-clamp-1">
+                      {p.name}
+                    </h2>
+                  </div>
+
+                  <div className="flex items-end justify-between border-t border-[var(--accent)]/5 pt-3">
+                    <span className="text-sm font-medium text-[var(--foreground)]">
+                      {p.price.toLocaleString("fa-IR")}{" "}
+                      <span className="text-[10px] text-[var(--foreground)]/40 font-light">
+                        تومان
+                      </span>
+                    </span>
+                    <span
+                      className={`text-[10px] font-light ${
+                        p.stock <= 2
+                          ? "text-rose-400"
+                          : "text-[var(--foreground)]/40"
+                      }`}
+                    >
+                      {p.stock === 0
+                        ? "اتمام انبار"
+                        : `${p.stock.toLocaleString("fa-IR")} عدد`}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
       {/* ───── INTERACTIVE MODALS BOUNDARY ───── */}
       <AnimatePresence mode="wait">
-        {/* ADD PRODUCT MODAL */}
         {addOpen && (
           <Modal key="add-modal" onClose={() => setAddOpen(false)}>
             <AddProductForm
-              BASE_URL={BASE_URL}
               onClose={() => setAddOpen(false)}
+              onSuccess={() => router.refresh()}
             />
           </Modal>
         )}
 
-        {/* EDIT PRODUCT MODAL */}
         {selected && (
           <Modal key="edit-modal" onClose={() => setSelected(null)}>
             <EditProductForm
               product={selected}
               onClose={() => setSelected(null)}
+              onSuccess={() => router.refresh()}
               BASE_URL={BASE_URL}
             />
           </Modal>
@@ -221,22 +252,19 @@ function Modal({
 /* ───── INTERNAL ADD PRODUCT FORM ───── */
 function AddProductForm({
   onClose,
-  BASE_URL,
+  onSuccess,
 }: {
   onClose: () => void;
-  BASE_URL: string | undefined;
+  onSuccess: () => void;
 }) {
   const [gender, setGender] = useState("unisex");
   const [season, setSeason] = useState("spring");
-  // Holds local URL object string purely for visual dashboard previews
   const [preview, setPreview] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Create an instant runtime memory URL link for the img source layout
     setPreview(URL.createObjectURL(file));
   };
 
@@ -247,10 +275,13 @@ function AddProductForm({
         formData.append("gender", gender);
         formData.append("season", season);
 
-        await createProduct(formData);
+        const res = await createProduct(formData);
         setIsSubmitting(false);
-        onClose();
-        window.location.reload();
+
+        if (res?.success) {
+          onClose();
+          onSuccess();
+        }
       }}
       className="space-y-4 text-right"
     >
@@ -404,7 +435,7 @@ function AddProductForm({
             <input
               required
               type="file"
-              name="image" // CRUCIAL attribute flag for native FormData compilation
+              name="image"
               accept="image/*"
               onChange={handleImageChange}
               className="hidden"
@@ -412,7 +443,7 @@ function AddProductForm({
           </label>
           {preview && (
             <img
-              src={`${preview}`}
+              src={preview}
               alt="Preview"
               className="w-12 h-12 object-cover rounded-lg border border-[var(--accent)]/20 shadow-sm"
             />
@@ -435,15 +466,16 @@ function AddProductForm({
 function EditProductForm({
   product,
   onClose,
+  onSuccess,
   BASE_URL,
 }: {
   product: Product;
   BASE_URL: string | undefined;
   onClose: () => void;
+  onSuccess: () => void;
 }) {
   const [gender, setGender] = useState(product.gender || "unisex");
   const [season, setSeason] = useState(product.season || "spring");
-  // Pre-populate with database image link string if available for preview layout
   const [preview, setPreview] = useState<string>(product.image || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -454,6 +486,8 @@ function EditProductForm({
     setPreview(URL.createObjectURL(file));
   };
 
+  const previewSrc = resolveImageSrc(preview, BASE_URL);
+
   return (
     <form
       action={async (formData) => {
@@ -461,18 +495,21 @@ function EditProductForm({
         formData.append("gender", gender);
         formData.append("season", season);
 
-        await updateProduct(formData);
+        const res = await updateProduct(formData);
         setIsSubmitting(false);
-        onClose();
-        window.location.reload();
+
+        if (res?.success) {
+          onClose();
+          onSuccess();
+        }
       }}
       className="space-y-4 text-right antialiased"
     >
       <div>
-        <h2 className="text-lg font-light text-foreground tracking-tight">
+        <h2 className="text-lg font-light text-[var(--foreground)] tracking-tight">
           ویرایش شناسنامه عطر
         </h2>
-        <p className="text-[11px] text-(--foreground)/40 font-light mt-0.5">
+        <p className="text-[11px] text-[var(--foreground)]/40 font-light mt-0.5">
           اصلاح مشخصات ساختاری، موجودی انبار و بیانیه بویایی رایحه.
         </p>
       </div>
@@ -480,26 +517,26 @@ function EditProductForm({
       <input type="hidden" name="id" value={product.id} />
 
       <div className="space-y-1">
-        <label className="text-[11px] text-(--foreground)/50 font-light">
+        <label className="text-[11px] text-[var(--foreground)]/50 font-light">
           نام محصول
         </label>
         <input
           required
           name="name"
           defaultValue={product.name}
-          className="w-full bg-secondary/10 border border-accent/20 rounded-xl px-3 py-2 text-sm outline-none focus:border-accent text-foreground font-light"
+          className="w-full bg-[var(--secondary)]/10 border border-[var(--accent)]/20 rounded-xl px-3 py-2 text-sm outline-none focus:border-[var(--accent)] text-[var(--foreground)] font-light"
         />
       </div>
 
       <div className="space-y-1">
-        <label className="text-[11px] text-(--foreground)/50 font-light">
+        <label className="text-[11px] text-[var(--foreground)]/50 font-light">
           توضیحات و بیانیه بویایی
         </label>
         <textarea
           required
           name="description"
           defaultValue={product.description || ""}
-          className="w-full bg-secondary/10 border border-accent/20 rounded-xl px-3 py-2 text-sm outline-none focus:border-accent min-h-24 max-h-40 text-foreground font-light resize-y"
+          className="w-full bg-[var(--secondary)]/10 border border-[var(--accent)]/20 rounded-xl px-3 py-2 text-sm outline-none focus:border-[var(--accent)] min-h-24 max-h-40 text-[var(--foreground)] font-light resize-y"
         />
       </div>
 
@@ -619,15 +656,15 @@ function EditProductForm({
             <span>بارگذاری تصویر جدید...</span>
             <input
               type="file"
-              name="image" // CRUCIAL attribute flag for native FormData compilation
+              name="image"
               accept="image/*"
               onChange={handleImageChange}
               className="hidden"
             />
           </label>
-          {preview && (
+          {previewSrc && (
             <img
-              src={`${BASE_URL}/${preview}`}
+              src={previewSrc}
               alt="Preview"
               className="w-12 h-12 object-cover rounded-lg border border-[var(--accent)]/20 shadow-sm"
             />
@@ -638,7 +675,7 @@ function EditProductForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full mt-2 bg-foreground text-background py-2.5 rounded-xl text-sm font-medium hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full mt-2 bg-[var(--foreground)] text-[var(--background)] py-2.5 rounded-xl text-sm font-medium hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
       >
         <FiCheck className="w-4 h-4" />
         <span>
@@ -646,8 +683,15 @@ function EditProductForm({
         </span>
       </button>
       <button
-        onClick={() => deleteProduct(product.id, product.image)}
-        className="w-full mt-2 bg-accent text-background py-2.5 rounded-xl text-sm font-medium hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+        type="button"
+        onClick={async () => {
+          const res = await deleteProduct(product.id, product.image);
+          if (res?.success) {
+            onClose();
+            onSuccess();
+          }
+        }}
+        className="w-full mt-2 bg-[var(--accent)] text-[var(--primary)] py-2.5 rounded-xl text-sm font-medium hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
       >
         حذف آیتم
       </button>

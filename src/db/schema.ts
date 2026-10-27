@@ -89,33 +89,33 @@ export const cartItem = pgTable("cart_item", {
 
 export const wishlistItem = pgTable("wishlist_item", {
   id: text("id").primaryKey(),
-  userId: text("user_id").notNull(),
-  productId: text("product_id").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  productId: text("product_id")
+    .notNull()
+    .references(() => product.id, { onDelete: "cascade" }),
 });
 
 export const order = pgTable("order", {
   id: text("id").primaryKey(),
   userId: text("user_id").notNull(),
-  total: integer("total").notNull(), // This matches your existing column structure
-  status: text("status").notNull().default("processing"), // We can default to processing for COD
-
-  // New High-Value Delivery Logistics Properties (Nullable for safety)
+  total: integer("total").notNull(),
+  status: text("status").notNull().default("processing"), // "processing" | "shipped" | "delivered" | "cancelled"
   customerName: text("customer_name"),
   customerPhone: text("customer_phone"),
   province: text("province"), // استان
   city: text("city"),
   shippingAddress: text("shipping_address"),
   postalCode: text("postal_code"),
-
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
 });
 
 export const orderItem = pgTable("order_item", {
   id: text("id").primaryKey(),
-  orderId: text("order_id").notNull(),
-
-  // We remove the foreign key reference block constraint here
-  // so you can execute hard-deletes on products safely without crashing past order charts
+  orderId: text("order_id")
+    .notNull()
+    .references(() => order.id, { onDelete: "cascade" }),
   productId: text("product_id"),
   quantity: integer("quantity").notNull(),
   priceAtPurchase: integer("price_at_purchase").notNull(),

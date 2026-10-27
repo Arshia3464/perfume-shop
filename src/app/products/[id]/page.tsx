@@ -4,6 +4,8 @@ import { eq } from "drizzle-orm";
 
 import ProductClient from "./ProductClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProductPage({
   params,
 }: {
@@ -19,11 +21,20 @@ export default async function ProductPage({
 
   if (!item) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center font-bold text-neutral-500">
         محصول پیدا نشد
       </div>
     );
   }
 
-  return <ProductClient item={item} BASE_URL={process.env.MINIO_ENDPOINT} />;
+  const endpoint = process.env.MINIO_ENDPOINT?.replace(/\/$/, "");
+  const bucket = process.env.MINIO_BUCKET_NAME || "perfumes";
+
+  const imageUrl = item.image
+    ? item.image.startsWith("http://") || item.image.startsWith("https://")
+      ? item.image
+      : `${endpoint}/${bucket}/${item.image.replace(/^\//, "")}`
+    : null;
+
+  return <ProductClient item={item} imageUrl={imageUrl} />;
 }
