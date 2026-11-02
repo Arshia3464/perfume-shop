@@ -1,0 +1,68 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint, Type Check & Build
+    runs-on: ubuntu-latest
+
+    # Spin up an ephemeral PostgreSQL instance on the runner
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: perfume_shop_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run TypeScript Check
+        run: npm run typecheck
+
+      - name: Run Drizzle Migrations on CI Database
+        env:
+          DATABASE_URL: "postgresql://postgres:password@localhost:5432/perfume_shop_ci"
+        run: npm run db:migrate
+
+      - name: Build Next.js Application
+        env:
+          NODE_ENV: production
+          DATABASE_URL: "postgresql://postgres:password@localhost:5432/perfume_shop_ci"
+          BETTER_AUTH_SECRET: "ci-mock-auth-secret-key-32-characters-min"
+          BETTER_AUTH_URL: "http://localhost:3000"
+          S3_ENDPOINT: "http://localhost:9000"
+          S3_ACCESS_KEY: "mock-access-key"
+          S3_SECRET_KEY: "mock-secret-key"
+          S3_BUCKET_NAME: "mock-bucket"
+        run: npm run build
