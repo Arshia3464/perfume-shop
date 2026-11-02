@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiSliders,
@@ -214,9 +215,10 @@ export default function SlidersClient({
                   onClick={() => openEdit(s)}
                 >
                   {bannerSrc ? (
-                    <img
+                    <Image
                       src={bannerSrc}
                       alt={s.text || "Banner"}
+                      fill
                       className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                     />
                   ) : (
@@ -484,9 +486,12 @@ function SliderForm({
             />
           </label>
           {previewSrc && (
-            <img
+            <Image
               src={previewSrc}
               alt="Preview"
+              width={64}
+              height={36}
+              unoptimized
               className="w-16 h-9 object-cover rounded-lg border border-[var(--accent)]/20 shadow-sm"
             />
           )}

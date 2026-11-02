@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -93,9 +94,10 @@ export default function LoginPage() {
       <div className="block md:hidden w-full max-w-sm space-y-6">
         {/* Mobile Header Image Banner */}
         <div className="relative w-full h-44 rounded-2xl overflow-hidden shadow-md">
-          <img
+          <Image
             src="/login-image.png"
             alt="گالری عطر رویال"
+            fill
             className="w-full h-full object-cover grayscale-[10%]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/50 to-transparent" />
@@ -278,9 +280,10 @@ export default function LoginPage() {
             ease: [0.25, 1, 0.5, 1],
           }}
         >
-          <img
+          <Image
             src="/login-image.png"
             alt="گالری عطر رویال"
+            fill
             className="w-full h-full object-cover grayscale-[20%] contrast-[105%]"
           />
           <div className="absolute inset-0 bg-linear-to-t from-primary/90 via-primary/40 to-transparent" />

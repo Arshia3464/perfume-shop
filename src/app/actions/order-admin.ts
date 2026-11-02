@@ -28,7 +28,7 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
     revalidatePath("/admin/orders");
     return { success: true };
   } catch (error) {
-    return { success: false, error: "خطا در بروزرسانی وضعیت لجیستیک." };
+    return { success: false, error: error };
   }
 }
 

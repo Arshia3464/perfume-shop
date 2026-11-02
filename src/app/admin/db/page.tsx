@@ -1,4 +1,5 @@
 import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
+import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 
@@ -68,10 +69,12 @@ export default async function DebugStoragePage() {
                   className="border border-gray-200 rounded-xl p-3 bg-white space-y-2 shadow-sm text-left flex flex-col justify-between"
                   dir="ltr"
                 >
-                  <div className="aspect-square bg-gray-50 border rounded-lg overflow-hidden flex items-center justify-center">
-                    <img
+                  <div className="relative aspect-square bg-gray-50 border rounded-lg overflow-hidden flex items-center justify-center">
+                    <Image
                       src={fileUrl}
                       alt={file.Key}
+                      fill
+                      unoptimized
                       className="w-full h-full object-cover"
                     />
                   </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -131,9 +132,11 @@ export default function ProductsClient({
                 {/* Image Box */}
                 <div className="aspect-[4/5] bg-[var(--secondary)]/30 overflow-hidden relative border-b border-[var(--accent)]/10">
                   {imgSrc ? (
-                    <img
+                    <Image
                       src={imgSrc}
                       alt={p.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
@@ -442,9 +445,12 @@ function AddProductForm({
             />
           </label>
           {preview && (
-            <img
+            <Image
               src={preview}
               alt="Preview"
+              width={48}
+              height={48}
+              unoptimized
               className="w-12 h-12 object-cover rounded-lg border border-[var(--accent)]/20 shadow-sm"
             />
           )}
@@ -663,9 +669,12 @@ function EditProductForm({
             />
           </label>
           {previewSrc && (
-            <img
+            <Image
               src={previewSrc}
               alt="Preview"
+              width={48}
+              height={48}
+              unoptimized
               className="w-12 h-12 object-cover rounded-lg border border-[var(--accent)]/20 shadow-sm"
             />
           )}

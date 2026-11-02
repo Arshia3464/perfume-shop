@@ -5,10 +5,10 @@ import { eq, desc } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
+import Image from "next/image";
 
 // Premium layout icons aligning directly with your main dashboard systems
 import {
-  IoBagHandleOutline,
   IoShieldCheckmarkOutline,
   IoTimeOutline,
   IoCheckmarkCircleOutline,
@@ -200,11 +200,13 @@ export default async function UserOrdersPage() {
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           {/* Render the frozen S3 image snapshot key carefully */}
-                          <div className="h-11 w-11 rounded-lg bg-background border border-secondary/50 overflow-hidden flex items-center justify-center shrink-0 shadow-2xs">
+                          <div className="relative h-11 w-11 rounded-lg bg-background border border-secondary/50 overflow-hidden flex items-center justify-center shrink-0 shadow-2xs">
                             {item.snapshotImage ? (
-                              <img
+                              <Image
                                 src={item.snapshotImage}
                                 alt={item.snapshotName || ""}
+                                fill
+                                sizes="44px"
                                 className="h-full w-full object-contain p-1"
                               />
                             ) : (

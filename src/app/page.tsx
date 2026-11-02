@@ -1,5 +1,5 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+// import { auth } from "@/lib/auth";
+// import { headers } from "next/headers";
 import { db } from "@/db";
 import { sliderItem } from "@/db/schema";
 import Hero from "@/components/Hero";
@@ -8,9 +8,9 @@ import Featured from "@/components/Featured";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  // const session = await auth.api.getSession({
+  //   headers: await headers(),
+  // });
   const rawSliders = await db.select().from(sliderItem);
 
   const endpoint = process.env.MINIO_ENDPOINT?.replace(/\/$/, "");

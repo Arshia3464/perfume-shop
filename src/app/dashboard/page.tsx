@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation"; // Added for sign-out routing safety
 
 import { db } from "@/db";
@@ -11,7 +12,6 @@ import { eq } from "drizzle-orm";
 // Premium React Icons for minimal luxury aesthetic
 import {
   IoBagHandleOutline,
-  IoBookmarkOutline,
   IoGridOutline,
   IoShieldCheckmarkOutline,
   IoTimeOutline,
@@ -276,11 +276,13 @@ export default async function DashboardPage() {
                       className="group relative flex items-center justify-between overflow-hidden rounded-2xl border border-secondary/50 bg-secondary/10 p-4 transition duration-200 hover:border-neutral-300"
                     >
                       <div className="flex items-center gap-4 z-10">
-                        <div className="h-14 w-14 rounded-xl bg-background border border-secondary/60 overflow-hidden flex items-center justify-center shadow-2xs shrink-0">
+                        <div className="relative h-14 w-14 rounded-xl bg-background border border-secondary/60 overflow-hidden flex items-center justify-center shadow-2xs shrink-0">
                           {item.image ? (
-                            <img
+                            <Image
                               src={item.image}
                               alt={item.name ?? ""}
+                              fill
+                              sizes="56px"
                               className="h-full w-full object-contain p-1.5 transition duration-500 group-hover:scale-105"
                             />
                           ) : (
@@ -339,11 +341,13 @@ export default async function DashboardPage() {
                     className="flex items-center justify-between rounded-xl border border-secondary/40 bg-secondary/10 p-3.5 hover:border-neutral-300 transition duration-200"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-background border border-secondary/40 flex items-center justify-center overflow-hidden shrink-0">
+                      <div className="relative w-10 h-10 rounded-lg bg-background border border-secondary/40 flex items-center justify-center overflow-hidden shrink-0">
                         {item.image ? (
-                          <img
+                          <Image
                             src={item.image}
                             alt={item.name ?? ""}
+                            fill
+                            sizes="40px"
                             className="w-full h-full object-contain p-1"
                           />
                         ) : (

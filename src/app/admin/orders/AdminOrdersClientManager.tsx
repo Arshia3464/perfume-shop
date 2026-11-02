@@ -28,17 +28,17 @@ type Props = {
   initialOrders: OrderData[];
 };
 
+// Priority Weights Definition Matrix (Pending always rises to top)
+const STATUS_WEIGHTS: Record<string, number> = {
+  pending: 1,
+  processing: 2,
+  shipped: 3,
+  delivered: 4,
+};
+
 export default function AdminOrdersClientManager({ initialOrders }: Props) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-
-  // Priority Weights Definition Matrix (Pending always rises to top)
-  const STATUS_WEIGHTS: Record<string, number> = {
-    pending: 1,
-    processing: 2,
-    shipped: 3,
-    delivered: 4,
-  };
 
   const processedOrders = useMemo(() => {
     // 1. Local Search & Tab Filtering Block

@@ -2,6 +2,7 @@
 
 import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   IoTrashOutline,
   IoAddOutline,
@@ -43,11 +44,7 @@ type Props = {
   BASE_URL: string | undefined;
 };
 
-export default function CartPageClient({
-  initialItems,
-  userId: _userId,
-  BASE_URL,
-}: Props) {
+export default function CartPageClient({ initialItems, BASE_URL }: Props) {
   const router = useRouter();
   const [items, setItems] = useState<CartItem[]>(initialItems);
   const [isPending, startTransition] = useTransition();
@@ -214,9 +211,11 @@ export default function CartPageClient({
                   >
                     <div className="relative w-20 h-20 bg-secondary rounded-lg overflow-hidden shrink-0 border border-accent/5">
                       {item.image ? (
-                        <img
+                        <Image
                           src={`${BASE_URL}/${item.image}`}
                           alt={item.name}
+                          fill
+                          sizes="80px"
                           className="w-full h-full object-cover"
                         />
                       ) : (

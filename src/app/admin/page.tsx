@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { user, product, order, cartItem, wishlistItem } from "@/db/schema";
+import { user, product, order } from "@/db/schema";
 import { sql } from "drizzle-orm";
 import {
   FiUsers,
