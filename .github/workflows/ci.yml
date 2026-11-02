@@ -15,9 +15,8 @@ jobs:
     name: Lint, Type Check & Build
     runs-on: ubuntu-latest
 
-    # Global environment variables for all steps in this job
+    # Keep app runtime and mock secrets at the top, but DO NOT put NODE_ENV: production here
     env:
-      NODE_ENV: production
       DATABASE_URL: "postgresql://postgres:password@localhost:5432/perfume_shop_ci"
       BETTER_AUTH_SECRET: "ci-mock-auth-secret-key-32-characters-min"
       BETTER_AUTH_URL: "http://localhost:3000"
@@ -58,7 +57,8 @@ jobs:
           cache: "pnpm"
 
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        # --prod=false explicitly forces pnpm to install devDependencies like eslint and typescript
+        run: pnpm install --frozen-lockfile --prod=false
 
       - name: Run ESLint
         run: pnpm run lint
@@ -70,4 +70,7 @@ jobs:
         run: pnpm run db:migrate
 
       - name: Build Next.js Application
+        # NODE_ENV: production is scoped only to the build step
+        env:
+          NODE_ENV: production
         run: pnpm run build
