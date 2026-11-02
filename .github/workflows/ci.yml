@@ -15,6 +15,18 @@ jobs:
     name: Lint, Type Check & Build
     runs-on: ubuntu-latest
 
+    # Global environment variables for all steps in this job
+    env:
+      NODE_ENV: production
+      DATABASE_URL: "postgresql://postgres:password@localhost:5432/perfume_shop_ci"
+      BETTER_AUTH_SECRET: "ci-mock-auth-secret-key-32-characters-min"
+      BETTER_AUTH_URL: "http://localhost:3000"
+      MINIO_ENDPOINT: "http://localhost:9000"
+      MINIO_ACCESS_KEY: "mock-access-key"
+      MINIO_SECRET_KEY: "mock-secret-key"
+      MINIO_BUCKET_NAME: "mock-bucket"
+      NEXT_PUBLIC_BASE_URL: "http://localhost:3000"
+
     services:
       postgres:
         image: postgres:16-alpine
@@ -42,7 +54,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: "pnpm"
 
       - name: Install Dependencies
@@ -55,18 +67,7 @@ jobs:
         run: pnpm run typecheck
 
       - name: Run Drizzle Migrations on CI Database
-        env:
-          DATABASE_URL: "postgresql://postgres:password@localhost:5432/perfume_shop_ci"
         run: pnpm run db:migrate
 
       - name: Build Next.js Application
-        env:
-          NODE_ENV: production
-          DATABASE_URL: "postgresql://postgres:password@localhost:5432/perfume_shop_ci"
-          BETTER_AUTH_SECRET: "ci-mock-auth-secret-key-32-characters-min"
-          BETTER_AUTH_URL: "http://localhost:3000"
-          S3_ENDPOINT: "http://localhost:9000"
-          S3_ACCESS_KEY: "mock-access-key"
-          S3_SECRET_KEY: "mock-secret-key"
-          S3_BUCKET_NAME: "mock-bucket"
         run: pnpm run build
