@@ -12,7 +12,7 @@ import {
   IoCheckmarkCircleOutline,
 } from "react-icons/io5";
 import { updateCartQuantity, removeFromCart } from "@/app/cart/actions";
-import { createCashOnDeliveryOrder } from "@/app/actions/order"; // Our order creation action
+import { createCashOnDeliveryOrder } from "@/app/actions/order";
 import { useCheckoutStore } from "./useCheckoutStore";
 
 // Luxury Storefront Geographic Iran Dataset Map
@@ -39,13 +39,13 @@ type CartItem = {
 
 type Props = {
   initialItems: CartItem[];
-  userId: string;
+  userId?: string;
   BASE_URL: string | undefined;
 };
 
 export default function CartPageClient({
   initialItems,
-  userId,
+  userId: _userId,
   BASE_URL,
 }: Props) {
   const router = useRouter();
@@ -60,10 +60,6 @@ export default function CartPageClient({
   const shipping = useCheckoutStore((state) => state.shipping);
   const updateShipping = useCheckoutStore((state) => state.updateShipping);
   const resetCheckout = useCheckoutStore((state) => state.resetCheckout);
-
-  React.useEffect(() => {
-    setItems(initialItems);
-  }, [initialItems]);
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -121,7 +117,7 @@ export default function CartPageClient({
       name: i.name,
       brand: i.brand,
       image: i.image ?? "",
-      volumeMl: null, // Fallback if not populated on item layout schemas yet
+      volumeMl: null,
       price: i.price,
       quantity: i.quantity,
     }));
@@ -139,9 +135,9 @@ export default function CartPageClient({
     setOrderLoading(false);
 
     if (result.success) {
-      resetCheckout(); // Wipes Zustand form memory
-      setItems([]); // Local client state update
-      router.push(`/checkout/success?id=${result.orderId}`); // Take them directly to a premium receipt route
+      resetCheckout();
+      setItems([]);
+      router.push(`/checkout/success?id=${result.orderId}`);
     } else {
       setErrorMessage(result.error ?? "خطایی رخ داد.");
     }
@@ -162,6 +158,7 @@ export default function CartPageClient({
 
         <div className="flex items-center gap-2 text-xs font-medium">
           <button
+            type="button"
             onClick={() => setStep("review")}
             className={`px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${currentStep === "review" ? "bg-primary text-background border-primary" : "bg-secondary/40 border-accent/10 text-primary/60"}`}
           >
@@ -169,6 +166,7 @@ export default function CartPageClient({
           </button>
           <span className="text-primary/20">←</span>
           <button
+            type="button"
             disabled={items.length === 0}
             onClick={() => setStep("shipping")}
             className={`px-3 py-1.5 rounded-lg border transition-all ${items.length === 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${currentStep === "shipping" ? "bg-primary text-background border-primary" : "bg-secondary/40 border-accent/10 text-primary/60"}`}
@@ -177,6 +175,7 @@ export default function CartPageClient({
           </button>
           <span className="text-primary/20">←</span>
           <button
+            type="button"
             disabled={items.length === 0}
             onClick={() => setStep("payment")}
             className={`px-3 py-1.5 rounded-lg border transition-all ${items.length === 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${currentStep === "payment" ? "bg-primary text-background border-primary" : "bg-secondary/40 border-accent/10 text-primary/60"}`}
@@ -241,6 +240,7 @@ export default function CartPageClient({
                     <div className="flex flex-col items-end justify-between h-20">
                       <div className="flex items-center border border-accent/20 rounded-md bg-background overflow-hidden">
                         <button
+                          type="button"
                           disabled={isPending || orderLoading}
                           onClick={() =>
                             handleQtyAdjust(item.id, item.quantity, -1)
@@ -253,6 +253,7 @@ export default function CartPageClient({
                           {item.quantity.toLocaleString("fa-IR")}
                         </span>
                         <button
+                          type="button"
                           disabled={isPending || orderLoading}
                           onClick={() =>
                             handleQtyAdjust(item.id, item.quantity, 1)
@@ -264,6 +265,7 @@ export default function CartPageClient({
                       </div>
 
                       <button
+                        type="button"
                         disabled={isPending || orderLoading}
                         onClick={() => handleItemRemoval(item.id)}
                         className="text-primary/40 hover:text-red-700 p-1 transition-colors cursor-pointer disabled:opacity-40"
@@ -451,9 +453,10 @@ export default function CartPageClient({
               </div>
             </div>
 
-            {/* Step triggers with mutation actions hooked smoothly */}
+            {/* Step triggers */}
             {currentStep === "review" && (
               <button
+                type="button"
                 onClick={() => setStep("shipping")}
                 className="w-full py-3 bg-primary text-background text-xs font-medium rounded-xl hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer"
               >
@@ -462,6 +465,7 @@ export default function CartPageClient({
             )}
             {currentStep === "shipping" && (
               <button
+                type="button"
                 onClick={() => setStep("payment")}
                 className="w-full py-3 bg-primary text-background text-xs font-medium rounded-xl hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer"
               >
@@ -470,6 +474,7 @@ export default function CartPageClient({
             )}
             {currentStep === "payment" && (
               <button
+                type="button"
                 onClick={handleFinalOrderSubmit}
                 disabled={orderLoading}
                 className="w-full py-3 bg-primary text-background text-xs font-bold rounded-xl hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer gap-2 disabled:opacity-50"

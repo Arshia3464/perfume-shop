@@ -10,6 +10,7 @@ import {
   IoPaperPlaneOutline,
   IoArrowBackOutline,
 } from "react-icons/io5";
+import Link from "next/link";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -293,12 +294,12 @@ export default function FeaturedSection() {
                     Christian Dior
                   </p>
                 </div>
-                <a
+                <Link
                   href="/products/oud-ispahan"
                   className="rounded-full bg-primary px-4 py-2 text-[10px] text-background font-bold transition hover:opacity-90"
                 >
                   تهیه دست‌ریز
-                </a>
+                </Link>
               </div>
             </div>
           </FadeUp>
@@ -432,12 +433,12 @@ export default function FeaturedSection() {
               <button className="rounded-full bg-background px-6 py-2.5 text-xs font-bold text-primary transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-sm">
                 درخواست مشاوره اختصاصی
               </button>
-              <a
+              <Link
                 href="/products"
                 className="rounded-full border border-background/20 px-6 py-2.5 text-xs font-bold text-background transition hover:bg-background/10"
               >
                 مشاهده کاتالوگ محصولات
-              </a>
+              </Link>
             </div>
           </FadeUp>
         </div>

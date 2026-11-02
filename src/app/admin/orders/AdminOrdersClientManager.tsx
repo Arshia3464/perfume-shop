@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import AdminOrderRow from "./AdminOrderRow";
-import { FiSearch, FiFilter } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 
 type OrderItemSnapshot = {
   id: string;
@@ -42,7 +42,7 @@ export default function AdminOrdersClientManager({ initialOrders }: Props) {
 
   const processedOrders = useMemo(() => {
     // 1. Local Search & Tab Filtering Block
-    let filtered = initialOrders.filter((ord) => {
+    const filtered = initialOrders.filter((ord) => {
       const matchesStatus =
         statusFilter === "all" || ord.status === statusFilter;
       const matchesText =
